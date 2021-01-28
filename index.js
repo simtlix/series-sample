@@ -19,7 +19,7 @@ mongoose.connect(...mongooseConfig).then(() => console.log('Connected to the dat
 require('./types/serie');
 const schema = simfinity.createSchema();
 
-app.use('/', graphqlHTTP({
+app.use('/graphql', graphqlHTTP({
   schema,
   graphiql: true,
   customFormatErrorFn: simfinity.buildErrorFormatter((err) => {
@@ -27,6 +27,7 @@ app.use('/', graphqlHTTP({
   }),
 }));
 
-app.listen(3000, () => {
-  console.log('Listening on port 3000');
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log('Listening on port ' + PORT);
 });
