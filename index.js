@@ -6,9 +6,9 @@ const simfinity = require('@simtlix/simfinity-js');
 const app = express();
 
 mongoose.connect(
-  'mongodb://localhost:27017,localhost:27018,localhost:27019/series-sample',
-  {replicaSet: 'rs', useNewUrlParser: true, useUnifiedTopology: true},
-).then(() => console.log('Connected to the database'));
+  'mongodb+srv://escavuzzo:Simtlix01@simfinity.68i54.mongodb.net/series-sample?retryWrites=true&w=majority',
+  {useNewUrlParser: true, useUnifiedTopology: true},
+).then(() => console.log('Connected to the database')).catch(e => console.log(e));
 
 require('./types/serie');
 const schema = simfinity.createSchema();
