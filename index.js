@@ -19,7 +19,7 @@ mongoose.connect(...mongooseConfig).then(() => console.log('Connected to the dat
 require('./types/serie');
 const schema = simfinity.createSchema();
 
-app.use('/graphql', graphqlHTTP({
+app.use('/', graphqlHTTP({
   schema,
   graphiql: true,
   customFormatErrorFn: simfinity.buildErrorFormatter((err) => {
