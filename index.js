@@ -5,10 +5,16 @@ const mongoose = require('mongoose');
 const simfinity = require('@simtlix/simfinity-js');
 const app = express();
 
-mongoose.connect(
-  process.env.MONGO,
-  {useNewUrlParser: true, useUnifiedTopology: true},
-).then(() => console.log('Connected to the database')).catch(e => console.log(e));
+let mongooseConfig = [
+  'mongodb://localhost:27017,localhost:27018,localhost:27019/series-sample', 
+  {replicaSet: 'rs', useNewUrlParser: true, useUnifiedTopology: true}
+];
+
+if(process.env.MONGO) {
+  mongooseConfig = [process.env.MONGO, {useNewUrlParser: true, useUnifiedTopology: true}];
+}
+
+mongoose.connect(...mongooseConfig).then(() => console.log('Connected to the database')).catch(e => console.log(e));
 
 require('./types/serie');
 const schema = simfinity.createSchema();
