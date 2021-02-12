@@ -15,6 +15,7 @@ if(process.env.MONGO) {
 }
 
 mongoose.connect(...mongooseConfig).then(() => console.log('Connected to the database')).catch(e => console.log(e));
+mongoose.set('useCreateIndex', true);
 
 require('./types/serie');
 const schema = simfinity.createSchema();

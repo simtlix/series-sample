@@ -1,12 +1,12 @@
 const graphql = require('graphql');
 const simfinity = require('@simtlix/simfinity-js');
 
-const { GraphQLObjectType, GraphQLString } = graphql;
+const { GraphQLObjectType, GraphQLNonNull, GraphQLString } = graphql;
 
 const directorType = new GraphQLObjectType({
   name: 'director',
   fields: () => ({
-    name: { type: GraphQLString },
+    name: { type: new GraphQLNonNull(GraphQLString) },
     country: { type: GraphQLString }
   })
 });
