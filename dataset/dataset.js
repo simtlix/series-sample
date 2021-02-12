@@ -2,7 +2,7 @@ module.exports = [ {
   name: 'Breaking Bad',
   director: { name: 'Vince Gilligan', country: 'United States' },
   categories: [ 'crime', 'drama', 'thriller' ],
-  star: 'Bryan Cranston',
+  stars: ['Bryan Cranston', 'Aaron Paul', 'Anna Gunn', 'Bob Odenkirk'],
   seasons: [
     { number: 1, year: 2008, episodes: [
       { number: 1, name: 'Pilot', date: 'January 20, 2008' },
@@ -81,7 +81,7 @@ module.exports = [ {
   name: 'Better Call Soul', 
   director: { name: 'Vince Gilligan', country: 'United States' },
   categories: [ 'crime', 'drama' ],
-  star: ' Bob Odenkirk',
+  stars: ['Bob Odenkirk', 'Rhea Seehorn', 'Jonathan Banks'],
   seasons: [
     { number: 1, year: 2015, episodes: [
       { number: 1, name: 'Uno', date: 'February 8, 2015' },
@@ -148,7 +148,7 @@ module.exports = [ {
   name: 'Game of Thrones', 
   director: { name: 'David Benioff', country: 'United States' },
   categories: [ 'action', 'adventure', 'drama', 'fantasy' ],
-  star: 'Emilia Clarke',
+  stars: ['Emilia Clarke', 'Peter Dinklage', 'Kit Harington'],
   seasons: [
     { number: 1, year: 2011, episodes: [
       { number: 1, name: 'Winter Is Coming', date: 'April 17, 2011' },

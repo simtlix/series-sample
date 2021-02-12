@@ -15,16 +15,15 @@ const serieType = new GraphQLObjectType({
         relation: { embedded: true }
       }
     },
-    star: {
-      type: starType,
+    stars: {
+      type: new GraphQLList(assignedStarAndSerieType),
       extensions: {
         relation: {
-          embedded: false,
-          connectionField: 'starID'
+          connectionField: 'serieID'
         }
       },
       resolve (parent) {
-        return simfinity.getModel(starType).findById(parent.starID);
+        return simfinity.getModel(assignedStarAndSerieType).find({ serieID: parent._id });
       }
     },
     seasons: {
@@ -42,5 +41,5 @@ const serieType = new GraphQLObjectType({
 module.exports = serieType;
 const seasonType = require('./season');
 const directorType = require('./director');
-const starType = require('./star');
+const assignedStarAndSerieType = require('./assignedStarAndSerie');
 simfinity.connect(null, serieType, 'serie', 'series');

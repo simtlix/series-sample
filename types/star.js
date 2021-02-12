@@ -9,19 +9,19 @@ const startType = new GraphQLObjectType({
     id: { type: GraphQLID },
     name: { type: GraphQLString },
     series: {
-      type: new GraphQLList(serieType),
+      type: new GraphQLList(assignedStarAndSerieType),
       extensions: {
         relation: {
           connectionField: 'starID'
         }
       },
       resolve (parent) {
-        return simfinity.getModel(serieType).find({ starID: parent._id });
+        return simfinity.getModel(assignedStarAndSerieType).find({ starID: parent._id });
       }
     }
   })
 });
 
 module.exports = startType;
-const serieType = require('./serie');
+const assignedStarAndSerieType = require('./assignedStarAndSerie');
 simfinity.connect(null, startType, 'star', 'stars');

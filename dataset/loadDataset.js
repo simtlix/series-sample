@@ -19,30 +19,52 @@ const sendRequest = (body, callback) => {
   }, );
 };
 
+(async () => {
+  for(let serie of series) {
+    const { stars, name, categories, director, seasons } = serie;
 
-series.forEach(serie => {
-  const { star, name, categories, director, seasons } = serie;
-  const starPromise = new Promise((resolve) => {
-    sendRequest(
-      `mutation {
-        addstar(input: {
-          name: "${star}"
-        }) {
-          id
-        }
-      }`, function(response) {
-        resolve(JSON.parse(response).data.addstar.id);
-      }
-    );
-  });
+    const starIds = await Promise.all(stars.map(star => 
+      new Promise((resolve) => {
+        sendRequest(
+          `{ stars(name: {operator:EQ value:"${star}"}) { id } }`, 
+          function(response) {
+            const stars = JSON.parse(response).data.stars;
+            if (stars.length > 0) {
+              resolve(stars[0].id);
+            } else {
+              resolve(
+                new Promise((resolve) => {
+                  sendRequest(
+                    `mutation {
+                      addstar(input: {
+                        name: "${star}"
+                      }) {
+                        id
+                      }
+                    }`, function(response) {
+                      resolve(JSON.parse(response).data.addstar.id);
+                    }
+                  );
+                })
+              );
+            }
+          }
+        );
+      })
+    ));
 
-  starPromise.then(starId => {
     const mutation = `mutation {
       addserie(input: {
         name: "${name}"
         categories: ${JSON.stringify(categories)}
         director: { name: "${director.name}" country: "${director.country}" }
-        star:{ id: "${starId}" }
+        stars: {
+          added: [
+            ${starIds.map(starId => `{
+              star: {id:"${starId}"}
+            }`)}
+          ]
+        }
         seasons: { 
           added: [
             ${seasons.map(season => `{
@@ -73,7 +95,7 @@ series.forEach(serie => {
       }
     }`;
 
-    sendRequest(mutation, function(response) { console.log(response); }
-    );
-  });
-});
+    sendRequest(mutation, function(response) { console.log(response); });
+  }
+})();
+
