@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const cors = require('cors');
 const graphqlHTTP = require('express-graphql').graphqlHTTP;
 const mongoose = require('mongoose');
 const simfinity = require('@simtlix/simfinity-js');
@@ -20,6 +21,7 @@ mongoose.set('useCreateIndex', true);
 require('./types/serie');
 const schema = simfinity.createSchema();
 
+app.use(cors());
 app.use('/graphql', graphqlHTTP({
   schema,
   graphiql: true,
