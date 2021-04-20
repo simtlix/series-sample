@@ -12,7 +12,8 @@ const assignedStarAndSerieType = new GraphQLObjectType({
       extensions: {
         relation: {
           embedded: false,
-          connectionField: 'serieID'
+          connectionField: 'serieID',
+          displayField: 'name'
         }
       },
       resolve (parent) {
@@ -24,7 +25,8 @@ const assignedStarAndSerieType = new GraphQLObjectType({
       extensions: {
         relation: {
           embedded: false,
-          connectionField: 'starID'
+          connectionField: 'starID',
+          displayField: 'name'
         }
       },
       resolve (parent) {

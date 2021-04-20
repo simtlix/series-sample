@@ -23,7 +23,8 @@ const seasonType = new GraphQLObjectType({
       type: serieType,
       extensions: {
         relation: {
-          connectionField: 'serieID'
+          connectionField: 'serieID',
+          displayField: 'name'
         }
       },
       resolve (parent) {

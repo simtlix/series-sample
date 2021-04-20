@@ -15,7 +15,8 @@ const episodeType = new GraphQLObjectType({
       type: seasonType,
       extensions: {
         relation: {
-          connectionField: 'seasonID'
+          connectionField: 'seasonID',
+          displayField: 'number'
         }
       },
       resolve (parent) {
