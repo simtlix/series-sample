@@ -12,7 +12,9 @@ const serieType = new GraphQLObjectType({
     director: {
       type: directorType,
       extensions: {
-        relation: { embedded: true }
+        relation: { embedded: true,
+          displayField: "name"          
+        }
       }
     },
     stars: {
