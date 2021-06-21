@@ -21,14 +21,32 @@ mongoose.set('useCreateIndex', true);
 require('./types/serie');
 const schema = simfinity.createSchema();
 
+const extensions = (param) => {
+  console.log(param.context);
+  
+  return {
+    runTime: Date.now() - param.context.startTime,
+    count: param.context.count,
+  };
+};
+
 app.use(cors());
-app.use('/graphql', graphqlHTTP({
-  schema,
-  graphiql: true,
-  customFormatErrorFn: simfinity.buildErrorFormatter((err) => {
-    console.log(err);
+
+app.use(
+  '/graphql',
+  graphqlHTTP((request) => {
+    return {
+      schema: schema,
+      context: { startTime: Date.now() },
+      graphiql: true,
+      extensions,
+      customFormatErrorFn: simfinity.buildErrorFormatter((err) => {
+        console.log(err);
+      }),
+    };
   }),
-}));
+);
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
