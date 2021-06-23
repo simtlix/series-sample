@@ -22,8 +22,6 @@ require('./types/serie');
 const schema = simfinity.createSchema();
 
 const extensions = (param) => {
-  console.log(param.context);
-  
   return {
     runTime: Date.now() - param.context.startTime,
     count: param.context.count,
@@ -46,7 +44,6 @@ app.use(
     };
   }),
 );
-
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
