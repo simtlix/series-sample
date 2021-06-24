@@ -1,5 +1,5 @@
 const graphql = require('graphql');
-const GraphQLDate = require('graphql-iso-date').GraphQLDate;
+const GraphQLDateTime = require('graphql-iso-date').GraphQLDateTime;
 const simfinity = require('@simtlix/simfinity-js');
 
 const { GraphQLID, GraphQLObjectType, GraphQLString, GraphQLInt } = graphql;
@@ -10,7 +10,9 @@ const episodeType = new GraphQLObjectType({
     id: { type: GraphQLID },
     number: { type: GraphQLInt },
     name: { type: GraphQLString },
-    date: { type: GraphQLDate },
+    date: { type: GraphQLDateTime,
+          
+    },
     season: {
       type: seasonType,
       extensions: {
