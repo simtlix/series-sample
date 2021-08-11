@@ -73,7 +73,7 @@ const sendRequest = (body, callback) => {
                 episodes: { 
                   added: [
                     ${season.episodes.map(episode => `{
-                      number: ${episode.number}, name: "${episode.name}", date: "${new Date(episode.date).toISOString().substring(0,10)}" 
+                      number: ${episode.number}, name: "${episode.name}", date: "${new Date(episode.date).toISOString()}" 
                     }`)}
                   ]
                 }

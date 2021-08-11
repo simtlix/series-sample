@@ -14,7 +14,7 @@
     "url": "https://github.com/simtlix/series-sample"
   },
   "dependencies": {
-    "@simtlix/simfinity-js": "^1.0.9",
+    "@simtlix/simfinity-js": "^1.1.0",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
