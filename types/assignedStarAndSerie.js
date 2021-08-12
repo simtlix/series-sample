@@ -16,7 +16,7 @@ const assignedStarAndSerieType = new GraphQLObjectType({
           displayField: 'name'
         }
       },
-      resolve (parent) {
+      resolve(parent) {
         return simfinity.getModel(serieType).findById(parent.serieID);
       }
     },
@@ -29,7 +29,7 @@ const assignedStarAndSerieType = new GraphQLObjectType({
           displayField: 'name'
         }
       },
-      resolve (parent) {
+      resolve(parent) {
         return simfinity.getModel(starType).findById(parent.starID);
       }
     },

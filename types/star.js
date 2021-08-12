@@ -9,7 +9,7 @@ const startType = new GraphQLObjectType({
   extensions: { validations: { 'CREATE': [emptyStringValidator] } },
   fields: () => ({
     id: { type: GraphQLID },
-    name: { 
+    name: {
       type: GraphQLString,
       extensions: { unique: true }
     },
@@ -20,7 +20,7 @@ const startType = new GraphQLObjectType({
           connectionField: 'starID'
         }
       },
-      resolve (parent) {
+      resolve(parent) {
         return simfinity.getModel(assignedStarAndSerieType).find({ starID: parent._id });
       }
     }

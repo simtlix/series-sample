@@ -18,7 +18,7 @@ const seasonType = new GraphQLObjectType({
     id: { type: GraphQLID },
     number: { type: GraphQLInt },
     year: { type: GraphQLInt },
-    state: { type: seasonState }, 
+    state: { type: seasonState },
     serie: {
       type: serieType,
       extensions: {
@@ -27,7 +27,7 @@ const seasonType = new GraphQLObjectType({
           displayField: 'name'
         }
       },
-      resolve (parent) {
+      resolve(parent) {
         return simfinity.getModel(serieType).findById(parent.serieID);
       }
     },
@@ -38,7 +38,7 @@ const seasonType = new GraphQLObjectType({
           connectionField: 'seasonID'
         }
       },
-      resolve (parent) {
+      resolve(parent) {
         return simfinity.getModel(episodeType).find({ seasonID: parent._id });
       }
     }

@@ -10,9 +10,7 @@ const episodeType = new GraphQLObjectType({
     id: { type: GraphQLID },
     number: { type: GraphQLInt },
     name: { type: GraphQLString },
-    date: { type: GraphQLDateTime,
-          
-    },
+    date: { type: GraphQLDateTime },
     season: {
       type: seasonType,
       extensions: {
@@ -21,7 +19,7 @@ const episodeType = new GraphQLObjectType({
           displayField: 'number'
         }
       },
-      resolve (parent) {
+      resolve(parent) {
         return simfinity.getModel(seasonType).findById(parent.seasonID);
       }
     },

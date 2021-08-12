@@ -12,8 +12,9 @@ const serieType = new GraphQLObjectType({
     director: {
       type: directorType,
       extensions: {
-        relation: { embedded: true,
-          displayField: "name"          
+        relation: {
+          embedded: true,
+          displayField: 'name'
         }
       }
     },
@@ -24,7 +25,7 @@ const serieType = new GraphQLObjectType({
           connectionField: 'serieID'
         }
       },
-      resolve (parent) {
+      resolve(parent) {
         return simfinity.getModel(assignedStarAndSerieType).find({ serieID: parent._id });
       }
     },
@@ -33,7 +34,7 @@ const serieType = new GraphQLObjectType({
       extensions: {
         relation: { connectionField: 'serieID' }
       },
-      resolve (parent) {
+      resolve(parent) {
         return simfinity.getModel(seasonType).find({ serieID: parent._id });
       }
     }

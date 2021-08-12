@@ -7,12 +7,12 @@ const simfinity = require('@simtlix/simfinity-js');
 const app = express();
 
 let mongooseConfig = [
-  'mongodb://localhost:27017,localhost:27018,localhost:27019/series-sample', 
-  {replicaSet: 'rs', useNewUrlParser: true, useUnifiedTopology: true}
+  'mongodb://localhost:27017,localhost:27018,localhost:27019/series-sample',
+  { replicaSet: 'rs', useNewUrlParser: true, useUnifiedTopology: true }
 ];
 
-if(process.env.MONGO) {
-  mongooseConfig = [process.env.MONGO, {useNewUrlParser: true, useUnifiedTopology: true}];
+if (process.env.MONGO) {
+  mongooseConfig = [process.env.MONGO, { useNewUrlParser: true, useUnifiedTopology: true }];
 }
 
 mongoose.connect(...mongooseConfig).then(() => console.log('Connected to the database')).catch(e => console.log(e));
@@ -32,7 +32,7 @@ app.use(cors());
 
 app.use(
   '/graphql',
-  graphqlHTTP((request) => {
+  graphqlHTTP(() => {
     return {
       schema: schema,
       context: { startTime: Date.now() },
