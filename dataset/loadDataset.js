@@ -1,57 +1,43 @@
-var request = require('request');
+const fetch = require('node-fetch');
 const series = require('./dataset');
 
-const sendRequest = (body, callback) => {
-  const options = {
-    'method': 'POST',
-    'url': 'http://localhost:3000/graphql',
-    'headers': {
+const sendRequest = async (body) => {
+  const response = await fetch('http://localhost:3000/graphql', {
+    method: 'POST',
+    headers: {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
       query: body,
     })
-  };
-
-  request(options, function (error, response) {
-    if (error) throw new Error(error);
-    callback(response.body);
-  }, );
+  });
+  return response.json();
 };
 
 (async () => {
   for(let serie of series) {
     const { stars, name, categories, director, seasons } = serie;
 
-    const starIds = await Promise.all(stars.map(star => 
-      new Promise((resolve) => {
-        sendRequest(
-          `{ stars(name: {operator:EQ value:"${star}"}) { id } }`, 
-          function(response) {
-            const stars = JSON.parse(response).data.stars;
-            if (stars.length > 0) {
-              resolve(stars[0].id);
-            } else {
-              resolve(
-                new Promise((resolve) => {
-                  sendRequest(
-                    `mutation {
-                      addstar(input: {
-                        name: "${star}"
-                      }) {
-                        id
-                      }
-                    }`, function(response) {
-                      resolve(JSON.parse(response).data.addstar.id);
-                    }
-                  );
-                })
-              );
+    const starIds = await Promise.all(stars.map(async (star) => {
+      const response = await sendRequest(
+        `{ stars(name: {operator:EQ value:"${star}"}) { id } }`
+      );
+      const stars = response.data.stars;
+      if (stars.length > 0) {
+        return stars[0].id;
+      } else {
+        const response = await sendRequest(
+          `mutation {
+            addstar(input: {
+              name: "${star}"
+            }) {
+              id
             }
-          }
+          }`
         );
-      })
-    ));
+        return response.data.addstar.id;
+      }
+    }));
 
     const mutation = `mutation {
       addserie(input: {
@@ -94,8 +80,10 @@ const sendRequest = (body, callback) => {
         }
       }
     }`;
-
-    sendRequest(mutation, function(response) { console.log(response); });
+    
+    console.log(mutation);
+    //const response = await sendRequest(mutation);
+    //console.log(response);
   }
 })();
 

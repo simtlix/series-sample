@@ -8,15 +8,16 @@ const app = express();
 
 let mongooseConfig = [
   'mongodb://localhost:27017,localhost:27018,localhost:27019/series-sample',
-  { replicaSet: 'rs', useNewUrlParser: true, useUnifiedTopology: true }
+  { replicaSet: 'rs' }
 ];
 
 if (process.env.MONGO) {
-  mongooseConfig = [process.env.MONGO, { useNewUrlParser: true, useUnifiedTopology: true }];
+  mongooseConfig = [process.env.MONGO, {}];
 }
 
-mongoose.connect(...mongooseConfig).then(() => console.log('Connected to the database')).catch(e => console.log(e));
-mongoose.set('useCreateIndex', true);
+mongoose.connect(...mongooseConfig)
+  .then(() => console.log('Connected to the database'))
+  .catch(e => console.log(e));
 
 require('./types/serie');
 const schema = simfinity.createSchema();
