@@ -1,7 +1,7 @@
-const fetch = require('node-fetch');
 const series = require('./dataset');
 
 const sendRequest = async (body) => {
+  const fetch = (await import('node-fetch')).default;
   const response = await fetch('http://localhost:3000/graphql', {
     method: 'POST',
     headers: {

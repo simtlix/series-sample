@@ -14,15 +14,15 @@
     "url": "https://github.com/simtlix/series-sample"
   },
   "dependencies": {
-    "@simtlix/simfinity-js": "^1.4.0",
+    "@simtlix/simfinity-js": "^1.5.0",
     "cors": "^2.8.5",
     "dotenv": "^17.1.0",
     "express": "^5.1.0",
-    "graphql": "^15.10.1",
+    "graphql": "^16.11.0",
     "graphql-http": "^1.22.4",
     "graphql-iso-date": "^3.6.1",
     "mongoose": "^8.16.2",
-    "node-fetch": "^2.7.0"
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
     "eslint": "^9.30.1"

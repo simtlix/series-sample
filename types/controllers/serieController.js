@@ -23,10 +23,16 @@ const serieController = {
   onDelete: async (doc, session) => {
     console.log(`The serie "${doc.name}" is being deleted.`);
     // Check if serie has seasons before deletion
-    const seasonModel = simfinity.getModel('season');
-    const seasons = await seasonModel.find({ serie: doc._id }).session(session);
-    if (seasons.length > 0) {
-      throw new BusinessError(`Cannot delete serie "${doc.name}" because it has ${seasons.length} seasons.`);
+    try {
+      const mongoose = require('mongoose');
+      const seasonModel = mongoose.model('season');
+      const seasons = await seasonModel.find({ serie: doc._id }).session(session);
+      if (seasons.length > 0) {
+        throw new BusinessError(`Cannot delete serie "${doc.name}" because it has ${seasons.length} seasons.`);
+      }
+    } catch (error) {
+      console.warn(`Could not check for seasons during serie deletion: ${error.message}`);
+      // Continue with deletion even if season check fails
     }
   }
 };

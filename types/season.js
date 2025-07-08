@@ -50,18 +50,18 @@ const serieType = require('./serie');
 const episodeType = require('./episode');
 
 const stateMachine = {
-  initialState: seasonState._nameLookup.SCHEDULED,
+  initialState: 'SCHEDULED',
   actions: {
     activate: {
-      from: seasonState._nameLookup.SCHEDULED,
-      to: seasonState._nameLookup.ACTIVE,
+      from: 'SCHEDULED',
+      to: 'ACTIVE',
       action: async (params) => {
         console.log(JSON.stringify(params));
       }
     },
     finalize: {
-      from: seasonState._nameLookup.ACTIVE,
-      to: seasonState._nameLookup.FINISHED,
+      from: 'ACTIVE',
+      to: 'FINISHED',
       action: async (params) => {
         console.log(JSON.stringify(params));
       }
