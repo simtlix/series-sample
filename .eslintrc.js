@@ -1,16 +1,12 @@
 module.exports = {
   'env': {
     'commonjs': true,
-    'es6': true,
+    'es2024': true,
     'node': true
   },
   'extends': 'eslint:recommended',
-  'globals': {
-    'Atomics': 'readonly',
-    'SharedArrayBuffer': 'readonly'
-  },
   'parserOptions': {
-    'ecmaVersion': 2018
+    'ecmaVersion': 'latest'
   },
   'rules': {
     'indent': [
@@ -28,6 +24,7 @@ module.exports = {
     'semi': [
       'error',
       'always'
-    ]
+    ],
+    'no-unused-vars': ['error', { 'argsIgnorePattern': '^_' }]
   }
 };

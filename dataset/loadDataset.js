@@ -59,7 +59,7 @@ const sendRequest = async (body) => {
                 episodes: { 
                   added: [
                     ${season.episodes.map(episode => `{
-                      number: ${episode.number}, name: "${episode.name}", date: "${new Date(episode.date).toISOString()}" 
+                      number: ${episode.number}, name: "${episode.name}", date: "${episode.date}" 
                     }`)}
                   ]
                 }
@@ -74,6 +74,7 @@ const sendRequest = async (body) => {
         seasons {
           number
           year
+          state
           episodes {
             number name date
           }
@@ -82,8 +83,8 @@ const sendRequest = async (body) => {
     }`;
     
     console.log(mutation);
-    //const response = await sendRequest(mutation);
-    //console.log(response);
+    const response = await sendRequest(mutation);
+    console.log(response);
   }
 })();
 

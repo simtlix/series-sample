@@ -1,5 +1,7 @@
 const graphql = require('graphql');
 const simfinity = require('@simtlix/simfinity-js');
+const { validateName, validateCategories, validateUniqueSerieName } = require('./validators/fieldValidators');
+const serieController = require('./controllers/serieController');
 
 const { GraphQLObjectType, GraphQLNonNull, GraphQLString, GraphQLID, GraphQLList } = graphql;
 
@@ -7,10 +9,26 @@ const serieType = new GraphQLObjectType({
   name: 'serie',
   fields: () => ({
     id: { type: GraphQLID },
-    name: { type: new GraphQLNonNull(GraphQLString) },
-    categories: { type: new GraphQLList(GraphQLString) },
+    name: { 
+      type: new GraphQLNonNull(GraphQLString),
+      extensions: {
+        validations: {
+          save: [validateName, validateUniqueSerieName],
+          update: [validateName, validateUniqueSerieName]
+        }
+      }
+    },
+    categories: { 
+      type: new GraphQLList(GraphQLString),
+      extensions: {
+        validations: {
+          save: [validateCategories],
+          update: [validateCategories]
+        }
+      }
+    },
     director: {
-      type: directorType,
+      type: new GraphQLNonNull(directorType),
       extensions: {
         relation: {
           embedded: true,
@@ -22,20 +40,20 @@ const serieType = new GraphQLObjectType({
       type: new GraphQLList(assignedStarAndSerieType),
       extensions: {
         relation: {
-          connectionField: 'serieID'
+          connectionField: 'serie'
         }
       },
       resolve(parent) {
-        return simfinity.getModel(assignedStarAndSerieType).find({ serieID: parent._id });
+        return simfinity.getModel(assignedStarAndSerieType).find({ serie: parent._id });
       }
     },
     seasons: {
       type: new GraphQLList(seasonType),
       extensions: {
-        relation: { connectionField: 'serieID' }
+        relation: { connectionField: 'serie' }
       },
       resolve(parent) {
-        return simfinity.getModel(seasonType).find({ serieID: parent._id });
+        return simfinity.getModel(seasonType).find({ serie: parent._id });
       }
     }
   })
@@ -45,4 +63,4 @@ module.exports = serieType;
 const seasonType = require('./season');
 const directorType = require('./director');
 const assignedStarAndSerieType = require('./assignedStarAndSerie');
-simfinity.connect(null, serieType, 'serie', 'series');
+simfinity.connect(null, serieType, 'serie', 'series', serieController);

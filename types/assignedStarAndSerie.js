@@ -1,36 +1,42 @@
 const graphql = require('graphql');
 const simfinity = require('@simtlix/simfinity-js');
-
-const { GraphQLObjectType, GraphQLID } = graphql;
+const { GraphQLObjectType, GraphQLID, GraphQLNonNull } = graphql;
+const { validateAssignedStarAndSerieBusinessRules } = require('./validators/typeValidators');
 
 const assignedStarAndSerieType = new GraphQLObjectType({
   name: 'assignedStarAndSerie',
+  extensions: {
+    validations: {
+      create: [validateAssignedStarAndSerieBusinessRules],
+      update: [validateAssignedStarAndSerieBusinessRules]
+    }
+  },
   fields: () => ({
     id: { type: GraphQLID },
     serie: {
-      type: serieType,
+      type: new GraphQLNonNull(serieType),
       extensions: {
         relation: {
           embedded: false,
-          connectionField: 'serieID',
+          connectionField: 'serie',
           displayField: 'name'
         }
       },
       resolve(parent) {
-        return simfinity.getModel(serieType).findById(parent.serieID);
+        return simfinity.getModel(serieType).findById(parent.serie);
       }
     },
     star: {
-      type: starType,
+      type: new GraphQLNonNull(starType),
       extensions: {
         relation: {
           embedded: false,
-          connectionField: 'starID',
+          connectionField: 'star',
           displayField: 'name'
         }
       },
       resolve(parent) {
-        return simfinity.getModel(starType).findById(parent.starID);
+        return simfinity.getModel(starType).findById(parent.star);
       }
     },
   })

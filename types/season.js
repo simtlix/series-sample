@@ -23,23 +23,23 @@ const seasonType = new GraphQLObjectType({
       type: serieType,
       extensions: {
         relation: {
-          connectionField: 'serieID',
+          connectionField: 'serie',
           displayField: 'name'
         }
       },
       resolve(parent) {
-        return simfinity.getModel(serieType).findById(parent.serieID);
+        return simfinity.getModel(serieType).findById(parent.serie);
       }
     },
     episodes: {
       type: new GraphQLList(episodeType),
       extensions: {
         relation: {
-          connectionField: 'seasonID'
+          connectionField: 'season'
         }
       },
       resolve(parent) {
-        return simfinity.getModel(episodeType).find({ seasonID: parent._id });
+        return simfinity.getModel(episodeType).find({ season: parent._id });
       }
     }
   })

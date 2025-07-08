@@ -97,6 +97,18 @@ mutation {
 - run: run-rs
 - run: npm start
 
+## Development
+
+### Code Quality
+- **ESLint**: Configured with ES2024 support using flat config format
+- **Linting**: Run `npm run lint` to check code quality
+- **Validation**: Comprehensive field and type-level validation
+- **Session Management**: All database operations use proper session handling for transactional consistency
+
+### Database Scripts
+- **Load Dataset**: `node dataset/loadDataset.js` - Loads sample data
+- **Delete Dataset**: `node dataset/deleteDataset.js` - Removes all data
+
 ## Available Series in the Dataset
 1. Breaking Bad (5 seasons)
 2. Better Call Saul (5 seasons)
