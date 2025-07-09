@@ -12,4 +12,9 @@ const directorType = new GraphQLObjectType({
 });
 
 module.exports = directorType;
-simfinity.connect(null, directorType, 'director', 'directors');
+
+// NOTE: Director type uses addNoEndpointType() instead of connect() because it's designed to be 
+// embedded within other types (like Serie) rather than having its own collection/endpoint.
+// This adds the type to the GraphQL schema without generating CRUD endpoints.
+// See serie.js where director is marked as: embedded: true
+simfinity.addNoEndpointType(directorType);

@@ -90,6 +90,82 @@ mutation {
 }
 ```
 
+## Architecture Patterns
+
+### Embedded vs Referenced Types
+
+This project demonstrates two different data relationship patterns:
+
+#### Embedded Types (Director)
+Some types are designed to be **embedded** within other documents rather than having their own collection:
+
+```javascript
+// types/director.js - Uses addNoEndpointType() instead of connect()
+const directorType = new GraphQLObjectType({
+  name: 'director',
+  fields: () => ({
+    id: { type: GraphQLID },
+    name: { type: new GraphQLNonNull(GraphQLString) },
+    country: { type: GraphQLString }
+  })
+});
+
+// Adds to GraphQL schema without creating endpoints
+simfinity.addNoEndpointType(directorType);
+
+// Used in serie.js with embedded: true
+director: {
+  type: new GraphQLNonNull(directorType),
+  extensions: {
+    relation: {
+      embedded: true,  // ← Director data stored within serie document
+      displayField: 'name'
+    }
+  }
+}
+```
+
+**When to use embedded types:**
+- Simple objects with few fields
+- Data that doesn't need its own CRUD operations
+- Objects that belong to a single parent (1:1 or few:1 relationships)
+- Examples: Address, Settings, Director info
+
+#### Referenced Types (Season, Episode, Star)
+Other types have their own collections and GraphQL endpoints:
+
+```javascript
+// types/season.js - Uses simfinity.connect()
+simfinity.connect(null, seasonType, 'season', 'seasons', null, null, stateMachine);
+
+// Used in serie.js with connectionField
+seasons: {
+  type: new GraphQLList(seasonType),
+  extensions: {
+    relation: { 
+      connectionField: 'serie'  // ← References season documents by serie ID
+    }
+  }
+}
+```
+
+**When to use referenced types:**
+- Complex objects with many fields
+- Data that needs CRUD operations (add/update/delete endpoints)
+- Objects shared between multiple parents (many:many relationships)
+- Objects with their own business logic (controllers, state machines)
+- Examples: Season, Episode, Star, User
+
+### GraphQL Endpoint Generation
+- **Embedded types**: Use `addNoEndpointType()` - Added to schema but no endpoints generated
+- **Referenced types**: Use `connect()` - Full CRUD endpoints automatically generated
+  - `addseason`, `updateseason`, `deleteseason`
+  - `season`, `seasons` queries
+
+### Simfinity Methods Summary
+- `simfinity.addNoEndpointType(directorType)` - Type available in schema, no endpoints
+- `simfinity.connect(null, seasonType, 'season', 'seasons')` - Full CRUD endpoints generated
+
 ## Setup Steps
 - install node.js
 - install run-rs globally (npm install -g run-rs)
