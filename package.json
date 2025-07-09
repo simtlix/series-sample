@@ -22,7 +22,8 @@
     "graphql-http": "^1.22.4",
     "graphql-iso-date": "^3.6.1",
     "mongoose": "^8.16.2",
-    "node-fetch": "^3.3.2"
+    "node-fetch": "^3.3.2",
+    "ruru": "^2.0.0-beta.24"
   },
   "devDependencies": {
     "eslint": "^9.30.1"

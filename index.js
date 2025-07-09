@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const { createHandler } = require('graphql-http/lib/use/express');
+const { ruruHTML } = require('ruru/server');
 const mongoose = require('mongoose');
 const simfinity = require('@simtlix/simfinity-js');
 const app = express();
@@ -31,7 +32,14 @@ const extensions = (param) => {
 
 app.use(cors());
 
-app.use(
+// Serve GraphiQL interface for GET requests
+app.get('/graphql', (req, res) => {
+  res.type('html');
+  res.end(ruruHTML({ endpoint: '/graphql' }));
+});
+
+// Handle GraphQL operations for POST requests
+app.post(
   '/graphql',
   createHandler({
     schema: schema,
