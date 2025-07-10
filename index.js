@@ -3,10 +3,13 @@ const express = require('express');
 const cors = require('cors');
 const { createHandler } = require('graphql-http/lib/use/express');
 const { ruruHTML } = require('ruru/server');
+const graphqljs = require('graphql');
+const { envelop, useEngine, useSchema } = require('@envelop/core');
 const mongoose = require('mongoose');
 const simfinity = require('@simtlix/simfinity-js');
 const app = express();
 
+// Mongoose connection config
 let mongooseConfig = [
   'mongodb://localhost:27017,localhost:27018,localhost:27019/series-sample',
   { replicaSet: 'rs' }
@@ -23,12 +26,37 @@ mongoose.connect(...mongooseConfig)
 require('./types/serie');
 const schema = simfinity.createSchema();
 
-const extensions = (param) => {
+let requestCount = 0;
+
+// Envelop plugin for timing
+function useTimingPlugin() {
   return {
-    runTime: Date.now() - param.context.startTime,
-    count: param.context.count,
+    onExecute() {
+      const start = Date.now();
+      const currentCount = ++requestCount;
+      return {
+        onExecuteDone({ result }) {
+          const durationMs = Date.now() - start;
+          result.extensions = {
+            ...result.extensions,
+            runTime: durationMs,
+            count: currentCount,
+            timestamp: new Date().toISOString()
+          };
+        }
+      };
+    }
   };
-};
+}
+
+// Setup envelop with proper plugins
+const getEnveloped = envelop({
+  plugins: [
+    useEngine(graphqljs),
+    useSchema(schema),
+    useTimingPlugin()
+  ]
+});
 
 app.use(cors());
 
@@ -38,17 +66,33 @@ app.get('/graphql', (req, res) => {
   res.end(ruruHTML({ endpoint: '/graphql' }));
 });
 
+const handler = createHandler({
+  execute: (args) => args.rootValue.execute(args),
+  onSubscribe: async (req, params) => {
+    const { schema, execute, contextFactory, parse, validate } = getEnveloped({
+      req: req.raw,
+    });
+
+    const args = {
+      schema,
+      operationName: params.operationName,
+      document: parse(params.query),
+      variableValues: params.variables,
+      contextValue: await contextFactory(),
+      rootValue: {
+        execute,
+      },
+    };
+
+    const errors = validate(args.schema, args.document);
+    if (errors.length) return errors;
+
+    return args;
+  },
+});
+
 // Handle GraphQL operations for POST requests
-app.post(
-  '/graphql',
-  createHandler({
-    schema: schema,
-    context: () => ({ startTime: Date.now() }),
-    formatError: simfinity.buildErrorFormatter((err) => {
-      console.log(err);
-    }),
-  }),
-);
+app.post('/graphql', handler);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
