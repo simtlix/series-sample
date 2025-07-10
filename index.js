@@ -4,7 +4,7 @@ const cors = require('cors');
 const { createHandler } = require('graphql-http/lib/use/express');
 const { ruruHTML } = require('ruru/server');
 const graphqljs = require('graphql');
-const { envelop, useEngine, useSchema } = require('@envelop/core');
+const { envelop, useEngine, useSchema, useErrorHandler } = require('@envelop/core');
 const mongoose = require('mongoose');
 const simfinity = require('@simtlix/simfinity-js');
 const app = express();
@@ -54,6 +54,9 @@ const getEnveloped = envelop({
   plugins: [
     useEngine(graphqljs),
     useSchema(schema),
+    useErrorHandler(simfinity.buildErrorFormatter((err) => {
+      console.log(err);
+    })),
     useTimingPlugin()
   ]
 });
