@@ -939,22 +939,54 @@ Simfinity.js provides built-in state machine support for managing entity lifecyc
 
 ### State Machine Configuration
 
-State machines are defined as objects with `initialState` and `actions` properties:
+State machines require **GraphQL Enum Types** to define states and proper state references:
+
+**Step 1: Define the GraphQL Enum Type**
+
+```javascript
+const { GraphQLEnumType } = require('graphql');
+
+const seasonState = new GraphQLEnumType({
+  name: 'seasonState',
+  values: {
+    SCHEDULED: { value: 'SCHEDULED' },
+    ACTIVE: { value: 'ACTIVE' },
+    FINISHED: { value: 'FINISHED' }
+  }
+});
+```
+
+**Step 2: Use Enum in GraphQL Object Type**
+
+```javascript
+const seasonType = new GraphQLObjectType({
+  name: 'season',
+  fields: () => ({
+    id: { type: GraphQLID },
+    number: { type: GraphQLInt },
+    year: { type: GraphQLInt },
+    state: { type: seasonState }, // ← Use the enum type
+    // ... other fields
+  })
+});
+```
+
+**Step 3: Define State Machine with Enum Values**
 
 ```javascript
 const stateMachine = {
-  initialState: 'SCHEDULED',
+  initialState: seasonState.getValue('SCHEDULED'), // ← Use getValue()
   actions: {
     activate: {
-      from: 'SCHEDULED',
-      to: 'ACTIVE',
+      from: seasonState.getValue('SCHEDULED'),     // ← Use getValue()
+      to: seasonState.getValue('ACTIVE'),          // ← Use getValue()
       action: async (params) => {
         console.log('Season activated:', JSON.stringify(params));
       }
     },
     finalize: {
-      from: 'ACTIVE',
-      to: 'FINISHED',
+      from: seasonState.getValue('ACTIVE'),        // ← Use getValue()
+      to: seasonState.getValue('FINISHED'),        // ← Use getValue()
       action: async (params) => {
         console.log('Season finalized:', JSON.stringify(params));
       }
@@ -963,6 +995,61 @@ const stateMachine = {
 };
 
 // Connect type with state machine
+simfinity.connect(null, seasonType, 'season', 'seasons', null, null, stateMachine);
+```
+
+**Complete Implementation Example** (see `types/season.js`):
+
+```javascript
+const graphql = require('graphql');
+const simfinity = require('@simtlix/simfinity-js');
+
+const { GraphQLObjectType, GraphQLID, GraphQLInt, GraphQLEnumType } = graphql;
+
+// 1. Define the enum
+const seasonState = new GraphQLEnumType({
+  name: 'seasonState',
+  values: {
+    SCHEDULED: { value: 'SCHEDULED' },
+    ACTIVE: { value: 'ACTIVE' },
+    FINISHED: { value: 'FINISHED' }
+  }
+});
+
+// 2. Use enum in type definition
+const seasonType = new GraphQLObjectType({
+  name: 'season',
+  fields: () => ({
+    id: { type: GraphQLID },
+    number: { type: GraphQLInt },
+    year: { type: GraphQLInt },
+    state: { type: seasonState }, // ← Enum type here
+    // ... other fields
+  })
+});
+
+// 3. Define state machine with enum values
+const stateMachine = {
+  initialState: seasonState.getValue('SCHEDULED'),
+  actions: {
+    activate: {
+      from: seasonState.getValue('SCHEDULED'),
+      to: seasonState.getValue('ACTIVE'),
+      action: async (params) => {
+        console.log(JSON.stringify(params));
+      }
+    },
+    finalize: {
+      from: seasonState.getValue('ACTIVE'),
+      to: seasonState.getValue('FINISHED'),
+      action: async (params) => {
+        console.log(JSON.stringify(params));
+      }
+    }
+  }
+};
+
+// 4. Connect with state machine
 simfinity.connect(null, seasonType, 'season', 'seasons', null, null, stateMachine);
 ```
 
@@ -1046,11 +1133,21 @@ query {
 
 ### State Machine Best Practices
 
-1. **Initial State**: Always define a clear initial state
-2. **Linear Flows**: Design logical progression (SCHEDULED → ACTIVE → FINISHED)
-3. **Validation**: Use state to enforce business rules
-4. **Actions**: Implement side effects in transition actions
-5. **Error Handling**: Handle transition failures gracefully
+1. **GraphQL Enum Types**: Always define states as GraphQL enums for type safety
+2. **getValue() Method**: Use `enumType.getValue('VALUE')` for state machine configuration
+3. **Initial State**: Define clear initial state using enum values
+4. **Linear Flows**: Design logical progression (SCHEDULED → ACTIVE → FINISHED)
+5. **Type Safety**: GraphQL enums provide validation and autocomplete
+6. **Actions**: Implement side effects in transition actions
+7. **Error Handling**: Handle transition failures gracefully
+
+### Key Implementation Points
+
+- **Enum Definition**: States must be defined as `GraphQLEnumType`
+- **Type Reference**: Use the enum type in your GraphQL object: `state: { type: seasonState }`
+- **State Machine Values**: Reference enum values with `seasonState.getValue('STATE_NAME')`
+- **Automatic Validation**: GraphQL validates state values against the enum
+- **IDE Support**: Enum values provide autocomplete and type checking
 
 ### Example Workflow
 
