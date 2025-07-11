@@ -176,6 +176,57 @@ mutation {
 
 **Note**: Replace `"USE_ACTUAL_STAR_ID_HERE"` with the actual IDs returned from the star creation mutations. The IDs are MongoDB ObjectIds (24-character hex strings).
 
+### Adding a Season to an Existing Series
+
+To add a season to an existing series, you need to first get the series ID and then create the season:
+
+**Step 1: Get the series ID**
+
+```graphql
+query {
+  series(name: {
+    operator: EQ,
+    value: "Breaking Bad"
+  }) {
+    id
+    name
+    seasons {
+      number
+      year
+      state
+    }
+  }
+}
+```
+
+**Step 2: Add the season using the series ID**
+
+```graphql
+mutation {
+  addseason(input: {
+    number: 6
+    year: 2024
+    serie: "USE_ACTUAL_SERIES_ID_HERE"
+  }) {
+    id
+    number
+    year
+    state
+    serie {
+      id
+      name
+    }
+    episodes {
+      id
+      number
+      name
+    }
+  }
+}
+```
+
+**Note**: Replace `"USE_ACTUAL_SERIES_ID_HERE"` with the actual series ID from the query above. The season will be created with the initial state "SCHEDULED".
+
 ## GraphQL Query Examples
 
 **Note:** These examples use the correct simfinity.js filter syntax. The format depends on the field type:
@@ -881,6 +932,157 @@ seasons: {
 ### Simfinity Methods Summary
 - `simfinity.addNoEndpointType(directorType)` - Type available in schema, no endpoints
 - `simfinity.connect(null, seasonType, 'season', 'seasons')` - Full CRUD endpoints generated
+
+## State Machine Implementation
+
+Simfinity.js provides built-in state machine support for managing entity lifecycles. This project demonstrates state machine implementation in the Season entity.
+
+### State Machine Configuration
+
+State machines are defined as objects with `initialState` and `actions` properties:
+
+```javascript
+const stateMachine = {
+  initialState: 'SCHEDULED',
+  actions: {
+    activate: {
+      from: 'SCHEDULED',
+      to: 'ACTIVE',
+      action: async (params) => {
+        console.log('Season activated:', JSON.stringify(params));
+      }
+    },
+    finalize: {
+      from: 'ACTIVE',
+      to: 'FINISHED',
+      action: async (params) => {
+        console.log('Season finalized:', JSON.stringify(params));
+      }
+    }
+  }
+};
+
+// Connect type with state machine
+simfinity.connect(null, seasonType, 'season', 'seasons', null, null, stateMachine);
+```
+
+### Season States
+
+The Season entity has three states:
+
+1. **SCHEDULED** - Initial state when season is created
+2. **ACTIVE** - Season is currently airing
+3. **FINISHED** - Season has completed airing
+
+### State Transitions
+
+**Available transitions:**
+- `activate`: SCHEDULED → ACTIVE
+- `finalize`: ACTIVE → FINISHED
+
+### State Machine Mutations
+
+Simfinity.js automatically generates state transition mutations:
+
+```graphql
+# Activate a scheduled season
+mutation {
+  activateseason(id: "season_id_here") {
+    id
+    number
+    year
+    state
+    serie {
+      name
+    }
+  }
+}
+```
+
+```graphql
+# Finalize an active season
+mutation {
+  finalizeseason(id: "season_id_here") {
+    id
+    number
+    year
+    state
+    serie {
+      name
+    }
+  }
+}
+```
+
+### State Machine Features
+
+**Validation:**
+- Only valid transitions are allowed
+- Attempting invalid transitions returns an error
+- State field is read-only (managed by state machine)
+
+**Custom Actions:**
+- Each transition can execute custom business logic
+- Actions receive parameters including entity data
+- Actions can perform side effects (logging, notifications, etc.)
+
+**Query by State:**
+```graphql
+query {
+  seasons(state: {
+    operator: EQ,
+    value: ACTIVE
+  }) {
+    id
+    number
+    year
+    state
+    serie {
+      name
+    }
+  }
+}
+```
+
+### State Machine Best Practices
+
+1. **Initial State**: Always define a clear initial state
+2. **Linear Flows**: Design logical progression (SCHEDULED → ACTIVE → FINISHED)
+3. **Validation**: Use state to enforce business rules
+4. **Actions**: Implement side effects in transition actions
+5. **Error Handling**: Handle transition failures gracefully
+
+### Example Workflow
+
+```graphql
+# 1. Create season (automatically SCHEDULED)
+mutation {
+  addseason(input: {
+    number: 6
+    year: 2024
+    serie: "series_id_here"
+  }) {
+    id
+    state  # Will be "SCHEDULED"
+  }
+}
+
+# 2. Activate season when airing begins
+mutation {
+  activateseason(id: "season_id_here") {
+    id
+    state  # Will be "ACTIVE"
+  }
+}
+
+# 3. Finalize season when completed
+mutation {
+  finalizeseason(id: "season_id_here") {
+    id
+    state  # Will be "FINISHED"
+  }
+}
+```
 
 ## Setup Steps
 - install node.js

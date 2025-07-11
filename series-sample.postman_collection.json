@@ -86,6 +86,90 @@
           "response": []
         },
         {
+          "name": "Add Season to Existing Series",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation {\\n  addseason(input: {\\n    number: 6\\n    year: 2024\\n    serie: \\\"REPLACE_WITH_ACTUAL_SERIES_ID\\\"\\n  }) {\\n    id\\n    number\\n    year\\n    state\\n    serie {\\n      id\\n      name\\n    }\\n    episodes {\\n      id\\n      number\\n      name\\n    }\\n  }\\n}\"\n}"
+            },
+            "url": {
+              "raw": "{{graphqlEndpoint}}",
+              "host": ["{{graphqlEndpoint}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Series ID for Season Creation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query {\\n  series(name: {\\n    operator: EQ,\\n    value: \\\"Breaking Bad\\\"\\n  }) {\\n    id\\n    name\\n    seasons {\\n      number\\n      year\\n      state\\n    }\\n  }\\n}\"\n}"
+            },
+            "url": {
+              "raw": "{{graphqlEndpoint}}",
+              "host": ["{{graphqlEndpoint}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Activate Season (State Machine)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation {\\n  activateseason(id: \\\"REPLACE_WITH_SEASON_ID\\\") {\\n    id\\n    number\\n    year\\n    state\\n    serie {\\n      id\\n      name\\n    }\\n  }\\n}\"\n}"
+            },
+            "url": {
+              "raw": "{{graphqlEndpoint}}",
+              "host": ["{{graphqlEndpoint}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Finalize Season (State Machine)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation {\\n  finalizeseason(id: \\\"REPLACE_WITH_SEASON_ID\\\") {\\n    id\\n    number\\n    year\\n    state\\n    serie {\\n      id\\n      name\\n    }\\n  }\\n}\"\n}"
+            },
+            "url": {
+              "raw": "{{graphqlEndpoint}}",
+              "host": ["{{graphqlEndpoint}}"]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "Add Series with Existing Stars (Replace IDs)",
           "request": {
             "method": "POST",
@@ -347,6 +431,27 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"query\": \"query {\\n  episodes(season: {\\n    terms: [\\n      {\\n        path: \\\"number\\\",\\n        operator: EQ,\\n        value: 1\\n      },\\n      {\\n        path: \\\"serie.name\\\",\\n        operator: EQ,\\n        value: \\\"Breaking Bad\\\"\\n      }\\n    ]\\n  }) {\\n    id\\n    number\\n    name\\n    date\\n    season {\\n      number\\n      year\\n      serie {\\n        name\\n      }\\n    }\\n  }\\n}\"\n}"
+            },
+            "url": {
+              "raw": "{{graphqlEndpoint}}",
+              "host": ["{{graphqlEndpoint}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Seasons by State (State Machine)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query {\\n  seasons(state: {\\n    operator: EQ,\\n    value: ACTIVE\\n  }) {\\n    id\\n    number\\n    year\\n    state\\n    serie {\\n      name\\n      director {\\n        name\\n        country\\n      }\\n    }\\n  }\\n}\"\n}"
             },
             "url": {
               "raw": "{{graphqlEndpoint}}",
