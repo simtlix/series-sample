@@ -20,20 +20,10 @@ The application manages TV series with the following structure:
 mutation {
   addserie(input: {
     name: "Breaking Bad"
-    categories: ["crime", "drama", "thriller"]
+    categories: ["Crime", "Drama", "Thriller"]
     director: { 
       name: "Vince Gilligan" 
       country: "United States" 
-    }
-    stars: {
-      added: [
-        {
-          star: {id: "star_id_1"}
-        },
-        {
-          star: {id: "star_id_2"}
-        }
-      ]
     }
     seasons: { 
       added: [
@@ -86,9 +76,105 @@ mutation {
     name: "Bryan Cranston"
   }) {
     id
+    name
   }
 }
 ```
+
+### Adding a Series with Stars
+
+To add a series with stars, you need to first create the stars and then use their returned IDs:
+
+**Step 1: Create the stars**
+
+```graphql
+mutation {
+  addstar(input: {
+    name: "Bryan Cranston"
+  }) {
+    id
+    name
+  }
+}
+```
+
+```graphql
+mutation {
+  addstar(input: {
+    name: "Aaron Paul"
+  }) {
+    id
+    name
+  }
+}
+```
+
+**Step 2: Add the series using the star IDs**
+
+```graphql
+mutation {
+  addserie(input: {
+    name: "Better Call Saul"
+    categories: ["Crime", "Drama"]
+    director: { 
+      name: "Vince Gilligan" 
+      country: "United States" 
+    }
+    stars: {
+      added: [
+        {
+          star: {id: "USE_ACTUAL_STAR_ID_HERE"}
+        },
+        {
+          star: {id: "USE_ACTUAL_STAR_ID_HERE"}
+        }
+      ]
+    }
+    seasons: { 
+      added: [
+        {
+          number: 1
+          year: 2015
+          episodes: { 
+            added: [
+              {
+                number: 1
+                name: "Uno"
+                date: "2015-02-08T02:00:00.000Z"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }) {
+    id
+    name
+    director { 
+      name 
+      country 
+    }
+    categories
+    stars {
+      star {
+        id
+        name
+      }
+    }
+    seasons {
+      number
+      year
+      episodes {
+        number 
+        name 
+        date
+      }
+    }
+  }
+}
+```
+
+**Note**: Replace `"USE_ACTUAL_STAR_ID_HERE"` with the actual IDs returned from the star creation mutations. The IDs are MongoDB ObjectIds (24-character hex strings).
 
 ## GraphQL Query Examples
 
@@ -483,7 +569,7 @@ Find all crime series:
 query {
   series(categories: {
     operator: EQ,
-    value: "crime"
+    value: "Crime"
   }) {
     id
     name
@@ -529,7 +615,7 @@ query {
   series(
     categories: {
       operator: EQ,
-      value: "crime"
+      value: "Crime"
     }
     pagination: {
       page: 1,
@@ -584,7 +670,7 @@ function useCountPlugin() {
       {
         "id": "1",
         "name": "Breaking Bad",
-        "categories": ["crime", "drama"],
+        "categories": ["Crime", "Drama"],
         "director": {
           "name": "Vince Gilligan",
           "country": "United States"
@@ -593,7 +679,7 @@ function useCountPlugin() {
       {
         "id": "2", 
         "name": "Better Call Saul",
-        "categories": ["crime", "drama"],
+        "categories": ["Crime", "Drama"],
         "director": {
           "name": "Vince Gilligan",
           "country": "United States"
@@ -614,7 +700,7 @@ Simfinity.js supports sorting with multiple fields and sort orders:
 ```graphql
 query {
   series(
-    categories: { operator: EQ, value: "crime" }
+    categories: { operator: EQ, value: "Crime" }
     pagination: { page: 1, size: 5, count: true }
     sort: {
       terms: [
