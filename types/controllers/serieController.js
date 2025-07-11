@@ -1,5 +1,4 @@
 const { BusinessError } = require('../validators/customErrors');
-const simfinity = require('@simtlix/simfinity-js');
 
 const serieController = {
   onSaving: async (doc, _args, _session) => {
