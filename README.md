@@ -90,6 +90,636 @@ mutation {
 }
 ```
 
+## GraphQL Query Examples
+
+**Note:** These examples use the correct simfinity.js filter syntax. The format depends on the field type:
+
+- **Scalar fields** (string, number, etc.): Use `{ operator: EQ, value: "something" }`
+- **ObjectType fields**: Use `{ terms: [{ path: "fieldName", operator: EQ, value: "something" }] }`
+- **Deep nested paths**: Use dot notation in the path like `"episodes.name"` or `"director.country"`
+- **Multiple filters**: You can combine both scalar and ObjectType filters in the same query
+
+For more detailed information about available operators and filter options, see the [simfinity.js documentation](https://github.com/simtlix/simfinity.js).
+
+## Key Filtering Principle
+
+**🔑 Filters are ALWAYS applied at the root/first entity level, never at nested levels.**
+
+This is a fundamental concept in simfinity.js that differs from traditional GraphQL approaches:
+
+### ✅ Correct Approach
+```graphql
+# Filter applied at the ROOT level (series)
+series(
+  seasons: { 
+    terms: [{ path: "episodes.name", operator: EQ, value: "Pilot" }] 
+  }
+) {
+  id
+  name
+  seasons {
+    episodes {
+      name
+    }
+  }
+}
+```
+
+### ❌ Incorrect Approach
+```graphql
+# This does NOT work - filters cannot be applied at nested levels
+series {
+  seasons {
+    episodes(name: { operator: EQ, value: "Pilot" }) {  # WRONG!
+      name
+    }
+  }
+}
+```
+
+### How It Works
+1. **Start at the root entity** (e.g., `series`, `episodes`, `seasons`)
+2. **Apply filters as parameters** to that root entity
+3. **Use dot notation** in the `path` field to reach nested properties
+4. **Let simfinity.js handle** the traversal and filtering logic automatically
+
+This approach ensures efficient database queries and consistent filtering behavior across all relationship types.
+
+### 1. Series with Directors from a Specific Country
+
+Find all series that have directors from the United States:
+
+```graphql
+query {
+  series(director: {
+    terms: [
+      {
+        path: "country",
+        operator: EQ,
+        value: "United States"
+      }
+    ]
+  }) {
+    id
+    name
+    categories
+    director {
+      name
+      country
+    }
+  }
+}
+```
+
+### 2. Series with a Specific Episode Name
+
+Find series that contain an episode with the name "Pilot":
+
+```graphql
+query {
+  series(
+    seasons: {
+      terms: [
+        {
+          path: "episodes.name",
+          operator: EQ,
+          value: "Pilot"
+        }
+      ]
+    }
+  ) {
+    id
+    name
+    seasons {
+      number
+      episodes {
+        number
+        name
+        date
+      }
+    }
+  }
+}
+```
+
+Alternative approach using episodes endpoint:
+
+```graphql
+query {
+  episodes(name: {
+    operator: EQ,
+    value: "Pilot"
+  }) {
+    id
+    name
+    number
+    date
+    season {
+      number
+      year
+      serie {
+        name
+        director {
+          name
+          country
+        }
+      }
+    }
+  }
+}
+```
+
+### 3. Series with a Particular Star
+
+Find series that feature "Bryan Cranston":
+
+```graphql
+query {
+  assignedStarsAndSeries(star: {
+    terms: [
+      {
+        path: "name",
+        operator: EQ,
+        value: "Bryan Cranston"
+      }
+    ]
+  }) {
+    id
+    star {
+      name
+    }
+    serie {
+      id
+      name
+      categories
+      director {
+        name
+        country
+      }
+    }
+  }
+}
+```
+
+Alternative approach starting from the series entity:
+
+```graphql
+query {
+  series(
+    stars: {
+      terms: [
+        {
+          path: "star.name",
+          operator: EQ,
+          value: "Bryan Cranston"
+        }
+      ]
+    }
+  ) {
+    id
+    name
+    categories
+    director {
+      name
+      country
+    }
+    stars {
+      star {
+        name
+      }
+    }
+  }
+}
+```
+
+Or find all stars in a specific series:
+
+```graphql
+query {
+  assignedStarsAndSeries(serie: {
+    terms: [
+      {
+        path: "name",
+        operator: EQ,
+        value: "Breaking Bad"
+      }
+    ]
+  }) {
+    id
+    star {
+      name
+    }
+    serie {
+      name
+    }
+  }
+}
+```
+
+### 4. Seasons from Series with Directors from a Given Country
+
+Find all seasons that belong to series directed by someone from the United States:
+
+```graphql
+query {
+  seasons {
+    id
+    number
+    year
+    state
+    serie {
+      name
+      director {
+        name
+        country
+      }
+    }
+  }
+}
+```
+
+Filter seasons specifically for US directors:
+
+```graphql
+query {
+  seasons(serie: {
+    terms: [
+      {
+        path: "director.country",
+        operator: EQ,
+        value: "United States"
+      }
+    ]
+  }) {
+    id
+    number
+    year
+    state
+    serie {
+      name
+      categories
+      director {
+        name
+        country
+      }
+    }
+    episodes {
+      number
+      name
+      date
+    }
+  }
+}
+```
+
+### 5. Combining Scalar and ObjectType Filters
+
+Find series named "Breaking Bad" that have at least one season with number 1:
+
+```graphql
+query {
+  series(
+    name: {
+      operator: EQ,
+      value: "Breaking Bad"
+    }
+    seasons: {
+      terms: [
+        {
+          path: "number",
+          operator: EQ,
+          value: 1
+        }
+      ]
+    }
+  ) {
+    id
+    name
+    director {
+      name
+      country
+    }
+    seasons {
+      number
+      episodes {
+        name
+      }
+    }
+  }
+}
+```
+
+### 6. Complex Nested Queries
+
+Get complete information for a specific series:
+
+```graphql
+query {
+  series(name: {
+    operator: EQ,
+    value: "Breaking Bad"
+  }) {
+    id
+    name
+    categories
+    director {
+      name
+      country
+    }
+    seasons {
+      number
+      year
+      state
+      episodes {
+        number
+        name
+        date
+      }
+    }
+  }
+}
+```
+
+### 7. Episodes from a Specific Season and Series
+
+Find all episodes from Season 1 of Breaking Bad:
+
+```graphql
+query {
+  episodes(season: {
+    terms: [
+      {
+        path: "number",
+        operator: EQ,
+        value: 1
+      },
+      {
+        path: "serie.name",
+        operator: EQ,
+        value: "Breaking Bad"
+      }
+    ]
+  }) {
+    id
+    number
+    name
+    date
+    season {
+      number
+      year
+      serie {
+        name
+      }
+    }
+  }
+}
+```
+
+### 8. Series by Category
+
+Find all crime series:
+
+```graphql
+query {
+  series(categories: {
+    operator: EQ,
+    value: "crime"
+  }) {
+    id
+    name
+    categories
+    director {
+      name
+      country
+    }
+  }
+}
+```
+
+### 9. Search by Partial Episode Name
+
+Find episodes containing "Fire" in the name:
+
+```graphql
+query {
+  episodes(name: {
+    operator: LIKE,
+    value: "Fire"
+  }) {
+    id
+    number
+    name
+    date
+    season {
+      number
+      serie {
+        name
+      }
+    }
+  }
+}
+```
+
+### 10. Pagination
+
+Simfinity.js supports built-in pagination with optional total count:
+
+```graphql
+query {
+  series(
+    categories: {
+      operator: EQ,
+      value: "crime"
+    }
+    pagination: {
+      page: 1,
+      size: 2,
+      count: true
+    }
+  ) {
+    id
+    name
+    categories
+    director {
+      name
+      country
+    }
+  }
+}
+```
+
+#### Pagination Parameters:
+- **page**: Page number (starts at 1, not 0)
+- **size**: Number of items per page
+- **count**: Optional boolean - if `true`, returns total count of matching records
+
+#### Getting Total Count:
+When `count: true` is specified, the total count is available in the response extensions. You need to configure an Envelop plugin to expose it:
+
+```javascript
+// Envelop plugin for count in extensions
+function useCountPlugin() {
+  return {
+    onExecute() {
+      return {
+        onExecuteDone({result, args}) {
+          if (args.contextValue?.count) {
+            result.extensions = {
+              ...result.extensions,
+              count: args.contextValue.count,
+            };
+          }
+        }
+      };
+    }
+  };
+}
+```
+
+#### Example Response:
+```json
+{
+  "data": {
+    "series": [
+      {
+        "id": "1",
+        "name": "Breaking Bad",
+        "categories": ["crime", "drama"],
+        "director": {
+          "name": "Vince Gilligan",
+          "country": "United States"
+        }
+      },
+      {
+        "id": "2", 
+        "name": "Better Call Saul",
+        "categories": ["crime", "drama"],
+        "director": {
+          "name": "Vince Gilligan",
+          "country": "United States"
+        }
+      }
+    ]
+  },
+  "extensions": {
+    "count": 15
+  }
+}
+```
+
+### 11. Sorting
+
+Simfinity.js supports sorting with multiple fields and sort orders:
+
+```graphql
+query {
+  series(
+    categories: { operator: EQ, value: "crime" }
+    pagination: { page: 1, size: 5, count: true }
+    sort: {
+      terms: [
+        {
+          field: "name",
+          order: DESC
+        }
+      ]
+    }
+  ) {
+    id
+    name
+    categories
+    director {
+      name
+      country
+    }
+  }
+}
+```
+
+#### Sorting Parameters:
+- **sort**: Contains sorting configuration
+- **terms**: Array of sort criteria (allows multiple sort fields)
+- **field**: The field name to sort by
+- **order**: Sort order - `ASC` (ascending) or `DESC` (descending)
+
+#### Sorting by Nested Fields:
+You can sort by fields from related/nested objects using dot notation:
+
+```graphql
+query {
+  series(
+    categories: { operator: EQ, value: "Drama" }
+    pagination: { page: 1, size: 5, count: true }
+    sort: {
+      terms: [
+        {
+          field: "director.name",
+          order: DESC
+        }
+      ]
+    }
+  ) {
+    id
+    name
+    categories
+    director {
+      name
+      country
+    }
+  }
+}
+```
+
+#### Multiple Sort Fields:
+You can sort by multiple fields with different orders:
+
+```graphql
+query {
+  series(
+    sort: {
+      terms: [
+        { field: "director.country", order: ASC },
+        { field: "name", order: DESC }
+      ]
+    }
+  ) {
+    id
+    name
+    director {
+      name
+      country
+    }
+  }
+}
+```
+
+#### Combining Features:
+The example above demonstrates combining **filtering**, **pagination**, and **sorting** in a single query - a common pattern for data tables and lists with full functionality.
+
+### 12. Series Released in a Specific Year Range
+
+Find series with seasons released between 2010-2015:
+
+```graphql
+query {
+  seasons(year: {
+    operator: BETWEEN,
+    value: [2010, 2015]
+  }) {
+    id
+    number
+    year
+    serie {
+      name
+      director {
+        name
+        country
+      }
+    }
+  }
+}
+```
+
 ## Architecture Patterns
 
 ### Embedded vs Referenced Types

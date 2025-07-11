@@ -26,23 +26,38 @@ mongoose.connect(...mongooseConfig)
 require('./types/serie');
 const schema = simfinity.createSchema();
 
-let requestCount = 0;
 
 // Envelop plugin for timing
 function useTimingPlugin() {
   return {
     onExecute() {
       const start = Date.now();
-      const currentCount = ++requestCount;
       return {
-        onExecuteDone({ result }) {
+        onExecuteDone({result}) {
           const durationMs = Date.now() - start;
           result.extensions = {
             ...result.extensions,
             runTime: durationMs,
-            count: currentCount,
             timestamp: new Date().toISOString()
           };
+        }
+      };
+    }
+  };
+}
+
+// Envelop plugin for timing
+function useCountPlugin() {
+  return {
+    onExecute() {
+      return {
+        onExecuteDone({result, args}) {
+          if (args.contextValue?.count) {
+            result.extensions = {
+              ...result.extensions,
+              count: args.contextValue.count,
+            };
+          }
         }
       };
     }
@@ -57,7 +72,8 @@ const getEnveloped = envelop({
     useErrorHandler(simfinity.buildErrorFormatter((err) => {
       console.log(err);
     })),
-    useTimingPlugin()
+    useTimingPlugin(),
+    useCountPlugin()
   ]
 });
 
