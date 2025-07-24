@@ -23,7 +23,9 @@ mongoose.connect(...mongooseConfig)
   .then(() => console.log('Connected to the database'))
   .catch(e => console.log(e));
 
-require('./types/serie');
+// Load all types through centralized index
+require('./types');
+
 const schema = simfinity.createSchema();
 
 

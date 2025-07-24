@@ -52,20 +52,16 @@ const episodeType = new GraphQLObjectType({
       }
     },
     season: {
-      type: new GraphQLNonNull(seasonType),
+      type: new GraphQLNonNull(simfinity.getType('season')),
       extensions: {
         relation: {
           connectionField: 'season',
           displayField: 'number'
         }
-      },
-      resolve(parent) {
-        return simfinity.getModel(seasonType).findById(parent.season);
       }
     },
   })
 });
 
 module.exports = episodeType;
-const seasonType = require('./season');
 simfinity.connect(null, episodeType, 'episode', 'episodes');

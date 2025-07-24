@@ -26,19 +26,15 @@ const starType = new GraphQLObjectType({
       }
     },
     series: {
-      type: new GraphQLList(assignedStarAndSerieType),
+      type: new GraphQLList(simfinity.getType('assignedStarAndSerie')),
       extensions: {
         relation: {
           connectionField: 'star'
         }
-      },
-      resolve(parent) {
-        return simfinity.getModel(assignedStarAndSerieType).find({ star: parent._id });
       }
     }
   })
 });
 
 module.exports = starType;
-const assignedStarAndSerieType = require('./assignedStarAndSerie');
 simfinity.connect(null, starType, 'star', 'stars');

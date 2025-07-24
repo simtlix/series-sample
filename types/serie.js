@@ -28,7 +28,7 @@ const serieType = new GraphQLObjectType({
       }
     },
     director: {
-      type: new GraphQLNonNull(directorType),
+      type: new GraphQLNonNull(simfinity.getType('director')),
       extensions: {
         relation: {
           embedded: true,
@@ -37,30 +37,23 @@ const serieType = new GraphQLObjectType({
       }
     },
     stars: {
-      type: new GraphQLList(assignedStarAndSerieType),
+      type: new GraphQLList(simfinity.getType('assignedStarAndSerie')),
       extensions: {
         relation: {
           connectionField: 'serie'
         }
-      },
-      resolve(parent) {
-        return simfinity.getModel(assignedStarAndSerieType).find({ serie: parent._id });
       }
     },
     seasons: {
-      type: new GraphQLList(seasonType),
+      type: new GraphQLList(simfinity.getType('season')),
       extensions: {
         relation: { connectionField: 'serie' }
-      },
-      resolve(parent) {
-        return simfinity.getModel(seasonType).find({ serie: parent._id });
       }
     }
   })
 });
 
 module.exports = serieType;
-const seasonType = require('./season');
-const directorType = require('./director');
-const assignedStarAndSerieType = require('./assignedStarAndSerie');
+
+
 simfinity.connect(null, serieType, 'serie', 'series', serieController);

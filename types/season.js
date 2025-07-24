@@ -20,34 +20,26 @@ const seasonType = new GraphQLObjectType({
     year: { type: GraphQLInt },
     state: { type: seasonState },
     serie: {
-      type: serieType,
+      type: simfinity.getType('serie'),
       extensions: {
         relation: {
           connectionField: 'serie',
           displayField: 'name'
         }
-      },
-      resolve(parent) {
-        return simfinity.getModel(serieType).findById(parent.serie);
       }
     },
     episodes: {
-      type: new GraphQLList(episodeType),
+      type: new GraphQLList(simfinity.getType('episode')),
       extensions: {
         relation: {
           connectionField: 'season'
         }
-      },
-      resolve(parent) {
-        return simfinity.getModel(episodeType).find({ season: parent._id });
       }
     }
   })
 });
 
 module.exports = seasonType;
-const serieType = require('./serie');
-const episodeType = require('./episode');
 
 const stateMachine = {
   initialState: seasonState.getValue('SCHEDULED'),
