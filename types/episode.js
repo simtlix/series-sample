@@ -1,5 +1,5 @@
 const graphql = require('graphql');
-const GraphQLDateTime = require('graphql-iso-date').GraphQLDateTime;
+const { DateTimeScalar } = require('graphql-date-scalars');
 const simfinity = require('@simtlix/simfinity-js');
 const { validateEpisodeNumber, validateDate } = require('./validators/fieldValidators');
 const { validateEpisodeBusinessRules, validateEpisodeFields } = require('./validators/typeValidators');
@@ -43,7 +43,7 @@ const episodeType = new GraphQLObjectType({
       }
     },
     date: { 
-      type: GraphQLDateTime,
+      type: DateTimeScalar,
       extensions: {
         validations: {
           save: [validateDate],
