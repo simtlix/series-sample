@@ -2,23 +2,30 @@
 // Load types in dependency order to avoid circular dependency issues
 
 // Independent types first
-require('./director');
-require('./star');
+import './director.js';
+import './star.js';
 
 // Types that depend on the above
-require('./assignedStarAndSerie');
-require('./season');
-require('./episode');
+import './assignedStarAndSerie.js';
+import './season.js';
+import './episode.js';
 
 // Main types that reference others
-require('./serie');
+import './serie.js';
 
-module.exports = {
-  // Re-export types if needed
-  director: require('./director'),
-  star: require('./star'),
-  assignedStarAndSerie: require('./assignedStarAndSerie'),
-  season: require('./season'),
-  episode: require('./episode'),
-  serie: require('./serie')
+// Re-export types if needed
+import director from './director.js';
+import star from './star.js';
+import assignedStarAndSerie from './assignedStarAndSerie.js';
+import season from './season.js';
+import episode from './episode.js';
+import serie from './serie.js';
+
+export {
+  director,
+  star,
+  assignedStarAndSerie,
+  season,
+  episode,
+  serie
 }; 

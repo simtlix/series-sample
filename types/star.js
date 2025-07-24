@@ -1,7 +1,7 @@
-const graphql = require('graphql');
-const simfinity = require('@simtlix/simfinity-js');
-const { validateName, validateUniqueStarName } = require('./validators/fieldValidators');
-const { validateStarBusinessRules } = require('./validators/typeValidators');
+import * as graphql from 'graphql';
+import * as simfinity from '@simtlix/simfinity-js';
+import { validateName, validateUniqueStarName } from './validators/fieldValidators.js';
+import { validateStarBusinessRules } from './validators/typeValidators.js';
 
 const { GraphQLObjectType, GraphQLList, GraphQLString, GraphQLID } = graphql;
 
@@ -36,5 +36,5 @@ const starType = new GraphQLObjectType({
   })
 });
 
-module.exports = starType;
+export default starType;
 simfinity.connect(null, starType, 'star', 'stars');

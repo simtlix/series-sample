@@ -1,7 +1,7 @@
-const graphql = require('graphql');
-const simfinity = require('@simtlix/simfinity-js');
-const { validateName, validateCategories, validateUniqueSerieName } = require('./validators/fieldValidators');
-const serieController = require('./controllers/serieController');
+import * as graphql from 'graphql';
+import * as simfinity from '@simtlix/simfinity-js';
+import { validateName, validateCategories, validateUniqueSerieName } from './validators/fieldValidators.js';
+import serieController from './controllers/serieController.js';
 
 const { GraphQLObjectType, GraphQLNonNull, GraphQLString, GraphQLID, GraphQLList } = graphql;
 
@@ -53,7 +53,7 @@ const serieType = new GraphQLObjectType({
   })
 });
 
-module.exports = serieType;
+export default serieType;
 
 
 simfinity.connect(null, serieType, 'serie', 'series', serieController);

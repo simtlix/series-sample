@@ -1,4 +1,5 @@
-const { BusinessError } = require('../validators/customErrors');
+import { BusinessError } from '../validators/customErrors.js';
+import mongoose from 'mongoose';
 
 const serieController = {
   onSaving: async (doc, _args, _session) => {
@@ -23,7 +24,6 @@ const serieController = {
     console.log(`The serie "${doc.name}" is being deleted.`);
     // Check if serie has seasons before deletion
     try {
-      const mongoose = require('mongoose');
       const seasonModel = mongoose.model('season');
       const seasons = await seasonModel.find({ serie: doc._id }).session(session);
       if (seasons.length > 0) {
@@ -36,4 +36,4 @@ const serieController = {
   }
 };
 
-module.exports = serieController; 
+export default serieController; 

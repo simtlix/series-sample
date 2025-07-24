@@ -1,4 +1,5 @@
-const { ValidationError } = require('./customErrors');
+import { ValidationError } from './customErrors.js';
+import * as simfinity from '@simtlix/simfinity-js';
 
 // Name validators
 const validateName = async (_typeName, fieldName, value, _session) => {
@@ -102,7 +103,6 @@ const validateCountry = async (_typeName, _fieldName, value, _session) => {
 // Unique name validator (for stars)
 const validateUniqueStarName = async (typeName, fieldName, value, session, args) => {
   if (value) {
-    const simfinity = require('@simtlix/simfinity-js');
     const starModel = simfinity.getModel('star');
 
     const existingStar = await starModel.findOne({
@@ -119,7 +119,6 @@ const validateUniqueStarName = async (typeName, fieldName, value, session, args)
 // Unique serie name validator
 const validateUniqueSerieName = async (typeName, fieldName, value, session, args) => {
   if (value) {
-    const simfinity = require('@simtlix/simfinity-js');
     const serieModel = simfinity.getModel('serie');
 
     const existingSerie = await serieModel.findOne({
@@ -133,7 +132,7 @@ const validateUniqueSerieName = async (typeName, fieldName, value, session, args
   }
 };
 
-module.exports = {
+export {
   validateName,
   validatePositiveNumber,
   validateEpisodeNumber,

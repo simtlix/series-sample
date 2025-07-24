@@ -1,5 +1,5 @@
-const graphql = require('graphql');
-const simfinity = require('@simtlix/simfinity-js');
+import * as graphql from 'graphql';
+import * as simfinity from '@simtlix/simfinity-js';
 const { GraphQLObjectType, GraphQLString, GraphQLID, GraphQLNonNull } = graphql;
 
 const directorType = new GraphQLObjectType({
@@ -11,7 +11,7 @@ const directorType = new GraphQLObjectType({
   })
 });
 
-module.exports = directorType;
+export default directorType;
 
 // NOTE: Director type uses addNoEndpointType() instead of connect() because it's designed to be 
 // embedded within other types (like Serie) rather than having its own collection/endpoint.

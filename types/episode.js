@@ -1,8 +1,8 @@
-const graphql = require('graphql');
-const { DateTimeScalar } = require('graphql-date-scalars');
-const simfinity = require('@simtlix/simfinity-js');
-const { validateEpisodeNumber, validateDate } = require('./validators/fieldValidators');
-const { validateEpisodeBusinessRules, validateEpisodeFields } = require('./validators/typeValidators');
+import * as graphql from 'graphql';
+import { DateTimeScalar } from 'graphql-date-scalars';
+import * as simfinity from '@simtlix/simfinity-js';
+import { validateEpisodeNumber, validateDate } from './validators/fieldValidators.js';
+import { validateEpisodeBusinessRules, validateEpisodeFields } from './validators/typeValidators.js';
 
 const { GraphQLID, GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLNonNull } = graphql;
 
@@ -63,5 +63,5 @@ const episodeType = new GraphQLObjectType({
   })
 });
 
-module.exports = episodeType;
+export default episodeType;
 simfinity.connect(null, episodeType, 'episode', 'episodes');

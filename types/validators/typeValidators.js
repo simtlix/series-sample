@@ -1,9 +1,9 @@
-const { BusinessError } = require('./customErrors');
+import { BusinessError } from './customErrors.js';
+import * as simfinity from '@simtlix/simfinity-js';
 
 
 // Episode type validators
 const validateEpisodeBusinessRules = async (typeName, args, modelArgs, session) => {
-  const simfinity = require('@simtlix/simfinity-js');
   const episodeModel = simfinity.getModel('episode');
 
   // Validate episode number uniqueness within the same season
@@ -50,7 +50,6 @@ const validateStarBusinessRules = async (typeName, args, modelArgs, session) => 
 
   // Validate star name uniqueness
   if (Object.prototype.hasOwnProperty.call(modelArgs, 'name')) {
-    const simfinity = require('@simtlix/simfinity-js');
     const starModel = simfinity.getModel('star');
 
     if (modelArgs.name) {
@@ -68,7 +67,6 @@ const validateStarBusinessRules = async (typeName, args, modelArgs, session) => 
 
 // AssignedStarAndSerie type validators
 const validateAssignedStarAndSerieBusinessRules = async (typeName, args, modelArgs, session) => {
-  const simfinity = require('@simtlix/simfinity-js');
 
   let { serie, star } = modelArgs;
 
@@ -114,7 +112,7 @@ const validateAssignedStarAndSerieBusinessRules = async (typeName, args, modelAr
   }
 };
 
-module.exports = {
+export {
   validateEpisodeBusinessRules,
   validateEpisodeFields,
   validateStarBusinessRules,

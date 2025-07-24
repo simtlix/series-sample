@@ -1,12 +1,12 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const { createHandler } = require('graphql-http/lib/use/express');
-const { ruruHTML } = require('ruru/server');
-const graphqljs = require('graphql');
-const { envelop, useEngine, useSchema, useErrorHandler } = require('@envelop/core');
-const mongoose = require('mongoose');
-const simfinity = require('@simtlix/simfinity-js');
+import 'dotenv/config';
+import express from 'express';
+import cors from 'cors';
+import { createHandler } from 'graphql-http/lib/use/express';
+import { ruruHTML } from 'ruru/server';
+import * as graphqljs from 'graphql';
+import { envelop, useEngine, useSchema, useErrorHandler } from '@envelop/core';
+import mongoose from 'mongoose';
+import * as simfinity from '@simtlix/simfinity-js';
 const app = express();
 
 // Mongoose connection config
@@ -24,7 +24,7 @@ mongoose.connect(...mongooseConfig)
   .catch(e => console.log(e));
 
 // Load all types through centralized index
-require('./types');
+import './types/index.js';
 
 const schema = simfinity.createSchema();
 

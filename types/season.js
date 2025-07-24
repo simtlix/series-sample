@@ -1,5 +1,5 @@
-const graphql = require('graphql');
-const simfinity = require('@simtlix/simfinity-js');
+import * as graphql from 'graphql';
+import * as simfinity from '@simtlix/simfinity-js';
 
 const { GraphQLObjectType, GraphQLID, GraphQLInt, GraphQLEnumType, GraphQLList } = graphql;
 
@@ -39,7 +39,7 @@ const seasonType = new GraphQLObjectType({
   })
 });
 
-module.exports = seasonType;
+export default seasonType;
 
 const stateMachine = {
   initialState: seasonState.getValue('SCHEDULED'),

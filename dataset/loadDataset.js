@@ -1,4 +1,4 @@
-const series = require('./dataset');
+import series from './dataset.js';
 
 const sendRequest = async (body) => {
   const fetch = (await import('node-fetch')).default;

@@ -1,4 +1,4 @@
-const { SimfinityError } = require('@simtlix/simfinity-js');
+import { SimfinityError } from '@simtlix/simfinity-js';
 
 // Validation Errors
 class ValidationError extends SimfinityError {
@@ -66,7 +66,7 @@ class DirectorNotFoundError extends NotFoundError {
   }
 }
 
-module.exports = {
+export {
   ValidationError,
   BusinessError,
   AuthorizationError,

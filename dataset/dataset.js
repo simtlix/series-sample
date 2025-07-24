@@ -1,4 +1,4 @@
-module.exports = [ {
+export default [ {
   name: 'Breaking Bad',
   director: { name: 'Vince Gilligan', country: 'United States' },
   categories: [ 'Crime', 'Drama', 'Thriller' ],

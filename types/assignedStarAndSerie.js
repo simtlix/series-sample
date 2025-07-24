@@ -1,7 +1,7 @@
-const graphql = require('graphql');
-const simfinity = require('@simtlix/simfinity-js');
+import * as graphql from 'graphql';
+import * as simfinity from '@simtlix/simfinity-js';
 const { GraphQLObjectType, GraphQLID, GraphQLNonNull } = graphql;
-const { validateAssignedStarAndSerieBusinessRules } = require('./validators/typeValidators');
+import { validateAssignedStarAndSerieBusinessRules } from './validators/typeValidators.js';
 
 const assignedStarAndSerieType = new GraphQLObjectType({
   name: 'assignedStarAndSerie',
@@ -36,5 +36,5 @@ const assignedStarAndSerieType = new GraphQLObjectType({
   })
 });
 
-module.exports = assignedStarAndSerieType;
+export default assignedStarAndSerieType;
 simfinity.connect(null, assignedStarAndSerieType, 'assignedStarAndSerie', 'assignedStarsAndSeries');
