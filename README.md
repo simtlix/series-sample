@@ -12,6 +12,132 @@ The application manages TV series with the following structure:
 - Stars (actors)
 - Directors (name, country)
 
+## Circular Dependencies and Type Resolution
+
+This project demonstrates how to handle circular dependencies between GraphQL types using `simfinity.getType()`. When types reference each other (e.g., `Serie` references `Season`, and `Season` references `Serie`), direct type imports can cause circular dependency issues.
+
+### Using `simfinity.getType()` for Type References
+
+Instead of directly importing and referencing types, use `simfinity.getType('typeName')` within field definitions:
+
+```javascript
+// ❌ Avoid direct type references (causes circular dependencies)
+import seasonType from './season.js';
+
+const serieType = new GraphQLObjectType({
+  name: 'serie',
+  fields: () => ({
+    // ... other fields
+    seasons: {
+      type: new GraphQLList(seasonType), // ← Direct reference
+      extensions: {
+        relation: { connectionField: 'serie' }
+      }
+    }
+  })
+});
+```
+
+```javascript
+// ✅ Use simfinity.getType() for dynamic type resolution
+const serieType = new GraphQLObjectType({
+  name: 'serie',
+  fields: () => ({
+    // ... other fields
+    seasons: {
+      type: new GraphQLList(simfinity.getType('season')), // ← Dynamic resolution
+      extensions: {
+        relation: { connectionField: 'serie' }
+      }
+    }
+  })
+});
+```
+
+### Benefits of `simfinity.getType()`
+
+1. **Prevents Circular Dependencies**: Types can reference each other without import cycles
+2. **Dynamic Resolution**: Types are resolved at runtime when the schema is built
+3. **Clean Architecture**: No need for complex import ordering or workarounds
+4. **Type Safety**: GraphQL still validates the relationships correctly
+
+### Implementation Pattern
+
+```javascript
+// types/serie.js
+import * as simfinity from '@simtlix/simfinity-js';
+
+const serieType = new GraphQLObjectType({
+  name: 'serie',
+  fields: () => ({
+    id: { type: GraphQLID },
+    name: { type: new GraphQLNonNull(GraphQLString) },
+    // Reference other types dynamically
+    seasons: {
+      type: new GraphQLList(simfinity.getType('season')),
+      extensions: {
+        relation: { connectionField: 'serie' }
+      }
+    },
+    stars: {
+      type: new GraphQLList(simfinity.getType('assignedStarAndSerie')),
+      extensions: {
+        relation: { connectionField: 'serie' }
+      }
+    }
+  })
+});
+
+export default serieType;
+simfinity.connect(null, serieType, 'serie', 'series', serieController);
+```
+
+### Type Loading Strategy
+
+The project uses a centralized loading approach in `types/index.js`:
+
+```javascript
+// types/index.js - Centralized type loading
+import './director.js';
+import './star.js';
+import './assignedStarAndSerie.js';
+import './season.js';
+import './episode.js';
+import './serie.js';
+
+// Export all types for external use
+export { director, star, assignedStarAndSerie, season, episode, serie };
+```
+
+This ensures all types are loaded before `simfinity.getType()` is called, allowing proper type resolution.
+
+### Troubleshooting Circular Dependencies
+
+If you encounter circular dependency errors, check these common issues:
+
+1. **Direct Type Imports**: Ensure you're using `simfinity.getType()` instead of direct imports
+2. **Import Order**: Make sure `types/index.js` loads all types before they're referenced
+3. **Type Names**: Verify the type name passed to `simfinity.getType()` matches the GraphQL type name exactly
+4. **Schema Building**: Ensure the schema is built after all types are loaded
+
+### Common Error Patterns
+
+```javascript
+// ❌ This will cause circular dependency errors
+import seasonType from './season.js';
+const seasons = { type: new GraphQLList(seasonType) };
+
+// ✅ This resolves circular dependencies
+const seasons = { type: new GraphQLList(simfinity.getType('season')) };
+```
+
+### Best Practices
+
+1. **Always use `simfinity.getType()`** for cross-referencing types
+2. **Keep type names consistent** between GraphQL definitions and `getType()` calls
+3. **Load all types centrally** through `types/index.js`
+4. **Test type resolution** by running the application and checking for schema errors
+
 ## GraphQL Mutations Examples
 
 ### Adding a Series with Seasons and Episodes
