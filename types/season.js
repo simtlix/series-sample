@@ -1,5 +1,6 @@
 import * as graphql from 'graphql';
 import * as simfinity from '@simtlix/simfinity-js';
+import { SeasonNumberScalar } from './scalars.js';
 
 const { GraphQLObjectType, GraphQLID, GraphQLInt, GraphQLEnumType, GraphQLList } = graphql;
 
@@ -16,7 +17,7 @@ const seasonType = new GraphQLObjectType({
   name: 'season',
   fields: () => ({
     id: { type: GraphQLID },
-    number: { type: GraphQLInt },
+    number: { type: SeasonNumberScalar },
     year: { type: GraphQLInt },
     state: { type: seasonState },
     serie: {

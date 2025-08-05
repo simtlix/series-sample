@@ -36,9 +36,7 @@ const validateEpisodeFields = async (typeName, args, modelArgs, _session) => {
   if (!modelArgs.season) {
     throw new BusinessError('Episode must be assigned to a season');
   }
-  if (!modelArgs.name || modelArgs.name.trim().length === 0) {
-    throw new BusinessError('Episode name cannot be empty');
-  }
+  // Removed episode name validation
 };
 
 // Star type validators

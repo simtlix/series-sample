@@ -3,8 +3,9 @@ import { DateTimeScalar } from 'graphql-date-scalars';
 import * as simfinity from '@simtlix/simfinity-js';
 import { validateEpisodeNumber, validateDate } from './validators/fieldValidators.js';
 import { validateEpisodeBusinessRules, validateEpisodeFields } from './validators/typeValidators.js';
+import { EpisodeNumberScalar } from './scalars.js';
 
-const { GraphQLID, GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLNonNull } = graphql;
+const { GraphQLID, GraphQLObjectType, GraphQLString, GraphQLNonNull } = graphql;
 
 const episodeType = new GraphQLObjectType({
   name: 'episode',
@@ -17,7 +18,7 @@ const episodeType = new GraphQLObjectType({
   fields: () => ({
     id: { type: GraphQLID },
     number: { 
-      type: GraphQLInt,
+      type: EpisodeNumberScalar,
       extensions: {
         validations: {
           save: [validateEpisodeNumber],
@@ -30,13 +31,9 @@ const episodeType = new GraphQLObjectType({
       extensions: {
         validations: {
           save: [
-            async (typeName, fieldName, value, _session) => {
-              if (!value || value.trim().length === 0) {
-                throw new Error('Episode name cannot be empty');
-              }
-              if (value.trim().length > 200) {
-                throw new Error('Episode name cannot exceed 200 characters');
-              }
+            async (_typeName, _fieldName, _value, _session) => {
+              // Additional business logic validation can go here
+              // The scalar handles the basic validation
             }
           ]
         }

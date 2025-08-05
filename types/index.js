@@ -1,6 +1,9 @@
 // Types index - centralized type loading
 // Load types in dependency order to avoid circular dependency issues
 
+// Load custom scalars first
+import './scalars.js';
+
 // Independent types first
 import './director.js';
 import './star.js';
