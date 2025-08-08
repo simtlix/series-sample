@@ -1,6 +1,6 @@
 import * as graphql from 'graphql';
 import * as simfinity from '@simtlix/simfinity-js';
-const { GraphQLObjectType, GraphQLString, GraphQLID, GraphQLNonNull } = graphql;
+const { GraphQLObjectType, GraphQLString, GraphQLNonNull } = graphql;
 
 const directorType = new GraphQLObjectType({
   name: 'director',
