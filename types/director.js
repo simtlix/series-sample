@@ -5,7 +5,6 @@ const { GraphQLObjectType, GraphQLString, GraphQLID, GraphQLNonNull } = graphql;
 const directorType = new GraphQLObjectType({
   name: 'director',
   fields: () => ({
-    id: { type: GraphQLID },
     name: { type: new GraphQLNonNull(GraphQLString) },
     country: { type: GraphQLString }
   })
