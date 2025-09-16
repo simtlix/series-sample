@@ -18,6 +18,9 @@ const serieType = new GraphQLObjectType({
         }
       }
     },
+    description: { 
+      type: GraphQLString
+    },
     categories: { 
       type: new GraphQLList(GraphQLString),
       extensions: {
