@@ -1314,6 +1314,108 @@ mutation {
 - run: run-rs
 - run: npm start
 
+## Starting the Server
+
+### GraphQL Server Options
+
+The project includes three different GraphQL server implementations:
+
+#### 1. Default Simfinity Server (Recommended)
+```bash
+npm start
+```
+Uses the main `index.js` with Simfinity.js built-in HTTP layer and GraphQL server.
+
+#### 2. Apollo Server Implementation
+```bash
+npm run start:apollo
+```
+Runs with `index.apollo.js` using `@apollo/server` for advanced features like:
+- Advanced playground integration
+- Plugins for metrics and monitoring
+- Apollo-specific features and optimizations
+
+**Server Features:**
+- Apollo Server with Express integration
+- Built-in GraphQL playground at `/graphql`
+- Custom error formatting compatible with Simfinity
+- CORS configuration
+
+#### 3. GraphQL Yoga Implementation
+```bash
+npm run start:yoga
+```
+Runs with `index.yoga.js` using `graphql-yoga` for:
+- Modern GraphQL developer experience
+- Enhanced debugging capabilities
+- Built-in timing and count extensions
+- Advanced error handling with Envelop plugins
+
+**Server Features:**
+- GraphQL Yoga with Express
+- Built-in GraphiQL interface
+- Request timing and execution metrics
+- Custom error formatters with Envelop plugins
+- Request counting and analytics
+
+### Server Setup Examples
+
+#### Example 1: Basic Development Setup
+```bash
+# Clone and setup
+npm install
+run-rs  # Start MongoDB replica set
+
+# Start with default server
+npm start
+```
+
+#### Example 2: Apollo Server for Production-like Environment
+```bash
+npm run start:apollo
+```
+Access GraphQL at: `http://localhost:3000/graphql`
+
+#### Example 3: Yoga Server for Enhanced Development
+```bash
+npm run start:yoga
+```
+Access GraphiQL at: `http://localhost:3000/graphql`
+
+### Debug Configuration
+
+All server implementations support debugging with async stack traces:
+
+#### Debug Default Server
+```bash
+node --inspect=0.0.0.0:9229 --async-stack-traces index.js
+```
+
+#### Debug Apollo Server
+```bash
+node --inspect=0.0.0.0:9229 --async-stack-traces index.apollo.js
+```
+
+#### Debug Yoga Server
+```bash
+node --inspect=0.0.0.0:9229 --async-stack-traces index.yoga.js
+```
+
+### Environment Variables
+
+All servers support the same environment variables:
+
+```bash
+# Custom MongoDB connection string
+MONGO=mongodb://localhost:27017/series-sample-custom npm start
+
+# Custom port
+PORT=4000 npm start
+
+# Custom MongoDB with custom port
+MONGO=mongodb://localhost:27017/series-test PORT=4000 npm run start:apollo
+```
+
 ## Development
 
 ### Code Quality
