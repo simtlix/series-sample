@@ -46,22 +46,8 @@ function timingPlugin() {
   };
 };
 
-function countPlugin() {
-  return {
-    async requestDidStart() {
-      return {
-        async willSendResponse({ contextValue, response }) {
-          if (response.body.kind === 'single' && contextValue?.count) {
-            response.body.singleResult.extensions = {
-              ...(response.body.singleResult.extensions || {}),
-              count: contextValue.count,
-            };
-          }
-        }
-      };
-    }
-  };
-};
+// Using simfinity's Apollo count plugin
+const countPlugin = simfinity.plugins.apolloCountPlugin;
 
 
 

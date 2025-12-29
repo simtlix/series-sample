@@ -48,23 +48,8 @@ function useTimingPlugin() {
   };
 }
 
-// Envelop plugin for timing
-function useCountPlugin() {
-  return {
-    onExecute() {
-      return {
-        onExecuteDone({result, args}) {
-          if (args.contextValue?.count) {
-            result.extensions = {
-              ...result.extensions,
-              count: args.contextValue.count,
-            };
-          }
-        }
-      };
-    }
-  };
-}
+// Using simfinity's count plugin
+const useCountPlugin = simfinity.plugins.envelopCountPlugin;
 
 // Setup envelop with proper plugins
 const getEnveloped = envelop({
@@ -75,7 +60,7 @@ const getEnveloped = envelop({
       console.log(err);
     })),
     useTimingPlugin(),
-    useCountPlugin()
+    useCountPlugin(),
   ]
 });
 

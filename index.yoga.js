@@ -52,22 +52,8 @@ function useTimingPlugin() {
   };
 }
 
-function useCountPlugin() {
-  return {
-    onExecute() {
-      return {
-        onExecuteDone({ result, args }) {
-          if (args.contextValue?.count) {
-            result.extensions = {
-              ...result.extensions,
-              count: args.contextValue.count
-            };
-          }
-        }
-      };
-    }
-  };
-}
+// Using simfinity's count plugin
+const useCountPlugin = simfinity.plugins.envelopCountPlugin;
 
 // ------------------------
 // Servidor Express + Yoga
