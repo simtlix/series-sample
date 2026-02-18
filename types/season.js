@@ -1,8 +1,9 @@
 import * as graphql from 'graphql';
 import * as simfinity from '@simtlix/simfinity-js';
 import { SeasonNumberScalar } from './scalars.js';
+import seasonController from './controllers/seasonController.js';
 
-const { GraphQLObjectType, GraphQLID, GraphQLInt, GraphQLEnumType, GraphQLList } = graphql;
+const { GraphQLObjectType, GraphQLID, GraphQLInt, GraphQLEnumType, GraphQLList, GraphQLString } = graphql;
 
 const seasonState = new GraphQLEnumType({
   name: 'seasonState',
@@ -20,6 +21,12 @@ const seasonType = new GraphQLObjectType({
     number: { type: SeasonNumberScalar },
     year: { type: GraphQLInt },
     state: { type: seasonState },
+    description: { 
+      type: GraphQLString,
+      extensions: {
+        readOnly: true,       // Excludes from input types
+      }
+    },
     serie: {
       type: simfinity.getType('serie'),
       extensions: {
@@ -62,4 +69,4 @@ const stateMachine = {
   }
 };
 
-simfinity.connect(null, seasonType, 'season', 'seasons', null, null, stateMachine);
+simfinity.connect(null, seasonType, 'season', 'seasons', seasonController, null, stateMachine);

@@ -1,5 +1,6 @@
 import { BusinessError } from '../validators/customErrors.js';
 import mongoose from 'mongoose';
+import * as simfinity from '@simtlix/simfinity-js';
 
 const serieController = {
   onSaving: async (doc, _args, _session) => {
@@ -11,12 +12,35 @@ const serieController = {
     }
   },
 
-  onUpdating: async (id, doc, _session) => {
+  onUpdating: async (id, doc, session) => {
     console.log(`The serie with id "${id}" is being updated.`);
     // 'doc' contains only the fields that are being changed.
     // We can prevent certain fields from being updated.
     if (doc.createdAt) {
       delete doc.createdAt;
+    }
+
+    // If the serie name is being updated, update all child seasons' descriptions
+    if (Object.prototype.hasOwnProperty.call(doc, 'name')) {
+      try {
+        const seasonModel = simfinity.getModel(simfinity.getType('season'));
+        
+        if (seasonModel && doc.name) {
+          // Load all child seasons
+          const seasons = await seasonModel.find({ serie: id }).session(session);
+          
+          // Update each season's description
+          for (const season of seasons) {
+            if (season.number != null) {
+              season.description = `${doc.name} ${season.number}`;
+              await season.save({ session });
+            }
+          }
+        }
+      } catch (error) {
+        console.warn(`Could not update season descriptions: ${error.message}`);
+        // Continue with serie update even if season update fails
+      }
     }
   },
 
