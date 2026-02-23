@@ -32,6 +32,19 @@ import './types/index.js';
 const schema = simfinity.createSchema();
 
 // ------------------------
+// Auth Plugin Configuration
+// ------------------------
+const { createAuthPlugin, requireRole } = simfinity.auth;
+
+const permissions = {
+  Mutation: {
+    deletestar: requireRole('admin'),
+  },
+};
+
+const authPlugin = createAuthPlugin(permissions, { defaultPolicy: 'ALLOW', debug: true });
+
+// ------------------------
 // Plugins Envelop (solo los necesarios)
 // ------------------------
 function useTimingPlugin() {
@@ -63,6 +76,13 @@ app.use(cors());
 
 const yoga = createYoga({
   schema,
+  context: () => ({
+    user: {
+      id: '1',
+      name: 'Admin User',
+      role: 'admin',
+    },
+  }),
   plugins: [
     useErrorHandler(
       simfinity.buildErrorFormatter((err) => {
@@ -70,7 +90,8 @@ const yoga = createYoga({
       })
     ),
     useTimingPlugin(),
-    useCountPlugin()
+    useCountPlugin(),
+    authPlugin
   ],
   graphiql: true,
   graphqlEndpoint: '/graphql',

@@ -1357,6 +1357,122 @@ Runs with `index.yoga.js` using `graphql-yoga` for:
 - Request timing and execution metrics
 - Custom error formatters with Envelop plugins
 - Request counting and analytics
+- Authorization plugin for securing mutations
+
+## Authorization
+
+The GraphQL Yoga implementation (`index.yoga.js`) includes simfinity's auth plugin for role-based access control.
+
+### Configuration
+
+The auth plugin is configured to secure the `deletestar` mutation, requiring an admin role:
+
+```javascript
+import * as simfinity from '@simtlix/simfinity-js';
+
+// Extract auth helpers from simfinity
+const { createAuthPlugin, requireRole } = simfinity.auth;
+
+// Define permissions - only deletestar requires admin role
+const permissions = {
+  Mutation: {
+    deletestar: requireRole('admin'),
+  },
+};
+
+// Create auth plugin with ALLOW default policy
+// This means all other operations remain unrestricted
+const authPlugin = createAuthPlugin(permissions, { defaultPolicy: 'ALLOW' });
+```
+
+### Hardcoded User Context
+
+For demonstration purposes, a hardcoded admin user is added to the GraphQL context:
+
+```javascript
+const yoga = createYoga({
+  schema,
+  context: () => ({
+    user: {
+      id: '1',
+      name: 'Admin User',
+      role: 'admin',
+    },
+  }),
+  plugins: [
+    // ... other plugins
+    authPlugin
+  ],
+  // ... other config
+});
+```
+
+### Testing Authorization
+
+**With admin role (authorized):**
+The `deletestar` mutation works normally when the user has the `admin` role.
+
+```graphql
+mutation {
+  deletestar(id: "star_id_here") {
+    id
+    name
+  }
+}
+```
+
+**Without admin role (forbidden):**
+To test authorization failure, change the role in the context:
+
+```javascript
+context: () => ({
+  user: {
+    id: '1',
+    name: 'Regular User',
+    role: 'user',  // Changed from 'admin' to 'user'
+  },
+}),
+```
+
+This will result in a `FORBIDDEN` error when trying to execute `deletestar`.
+
+### Available Auth Helpers
+
+Simfinity provides several rule helpers for authorization:
+
+| Helper | Description |
+|--------|-------------|
+| `requireAuth()` | Requires user to be authenticated |
+| `requireRole('ROLE')` | Requires specific role |
+| `requirePermission('perm')` | Requires specific permission |
+| `composeRules(...rules)` | Combine rules with AND logic |
+| `anyRule(...rules)` | Combine rules with OR logic |
+| `isOwner(ownerField, userIdField)` | Check resource ownership |
+| `allow` | Always allow access |
+| `deny` | Always deny access |
+
+### Extending Authorization
+
+To secure additional mutations or queries, add them to the permissions object:
+
+```javascript
+const permissions = {
+  Query: {
+    users: requireAuth(),
+    adminDashboard: requireRole('admin'),
+  },
+  Mutation: {
+    deletestar: requireRole('admin'),
+    deleteserie: requireRole('admin'),
+    updateuser: composeRules(requireAuth(), isOwner('id')),
+  },
+  Star: {
+    '*': requireAuth(),  // All Star fields require authentication
+  },
+};
+```
+
+For more details on authorization options, see the [simfinity.js documentation](https://github.com/simtlix/simfinity.js).
 
 ### Server Setup Examples
 
