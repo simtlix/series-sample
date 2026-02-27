@@ -1,4 +1,4 @@
-import SimfinityClient from '../client/SimfinityClient.js';
+import SimfinityClient from '@simtlix/simfinity-js-client';
 
 const ENDPOINT = process.env.GRAPHQL_ENDPOINT || 'http://localhost:3000/graphql';
 
