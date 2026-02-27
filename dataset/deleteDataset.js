@@ -1,66 +1,44 @@
-const sendRequest = async (body) => {
-  const fetch = (await import('node-fetch')).default;
-  const response = await fetch('http://localhost:3000/graphql', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      query: body,
-    })
-  });
-  return response.json();
-};
+import SimfinityClient from '../client/SimfinityClient.js';
 
-const deleteAllOfType = async (pluralName, mutationName) => {
-  console.log(`Fetching all ${pluralName}...`);
-  const query = `{ ${pluralName} { id } }`;
-  let response;
+const ENDPOINT = process.env.GRAPHQL_ENDPOINT || 'http://localhost:3000/graphql';
+
+const client = new SimfinityClient(ENDPOINT);
+
+const deleteAllOfType = async (typeName) => {
+  let items;
   try {
-    response = await sendRequest(query);
+    items = await client.find(typeName).fields('id').exec();
   } catch (e) {
-    console.error('Error connecting to GraphQL endpoint at http://localhost:3000/graphql. Is the server running?', e.message);
+    console.error(`Error fetching ${typeName}: ${e.message}`);
     return;
   }
 
-
-  if (response.errors) {
-    console.error(`GraphQL error fetching ${pluralName}:`, JSON.stringify(response.errors, null, 2));
-    return;
-  }
-
-  if (!response.data || !response.data[pluralName]) {
-    console.log(`Could not fetch ${pluralName} or none exist.`);
-    return;
-  }
-
-  const items = response.data[pluralName];
   if (items.length === 0) {
-    console.log(`No ${pluralName} to delete.`);
+    console.log(`No ${typeName} to delete.`);
     return;
   }
 
-  console.log(`Deleting ${items.length} ${pluralName}...`);
-
+  console.log(`Deleting ${items.length} ${typeName}(s)...`);
   for (const item of items) {
-    const mutation = `mutation { ${mutationName}(id: "${item.id}") { id } }`;
-    const deleteResponse = await sendRequest(mutation);
-    if (deleteResponse.errors) {
-      console.error(`Error deleting ${pluralName} with id ${item.id}:`, JSON.stringify(deleteResponse.errors, null, 2));
+    try {
+      await client.delete(typeName, item.id, 'id');
+    } catch (e) {
+      console.error(`  Error deleting ${typeName} ${item.id}: ${e.message}`);
     }
   }
-    
-  console.log(`Successfully deleted ${items.length} ${pluralName}.`);
-
+  console.log('  Done.');
 };
 
 (async () => {
+  await client.init();
+  console.log('Client initialized via introspection.\n');
   console.log('Starting dataset deletion...');
-  // The order is important to respect dependencies!
-  await deleteAllOfType('assignedStarsAndSeries', 'deleteassignedStarAndSerie');
-  await deleteAllOfType('episodes', 'deleteepisode');
-  await deleteAllOfType('seasons', 'deleteseason');
-  await deleteAllOfType('series', 'deleteserie');
-  await deleteAllOfType('stars', 'deletestar');
-  console.log('Dataset deletion complete.');
-})(); 
+
+  await deleteAllOfType('assignedStarAndSerie');
+  await deleteAllOfType('episode');
+  await deleteAllOfType('season');
+  await deleteAllOfType('serie');
+  await deleteAllOfType('star');
+
+  console.log('\nDataset deletion complete.');
+})();

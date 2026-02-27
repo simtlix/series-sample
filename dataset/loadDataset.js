@@ -1,90 +1,59 @@
+import SimfinityClient from '../client/SimfinityClient.js';
 import series from './dataset.js';
 
-const sendRequest = async (body) => {
-  const fetch = (await import('node-fetch')).default;
-  const response = await fetch('http://localhost:3000/graphql', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      query: body,
-    })
-  });
-  return response.json();
+const ENDPOINT = process.env.GRAPHQL_ENDPOINT || 'http://localhost:3000/graphql';
+const SERIE_FIELDS = 'id name director { name country } categories seasons { number year state episodes { number name date } }';
+
+const client = new SimfinityClient(ENDPOINT);
+
+const findOrCreateStar = async (starName) => {
+  const existing = await client.find('star')
+    .where('name', 'EQ', starName)
+    .fields('id')
+    .exec();
+
+  if (existing.length > 0) return existing[0].id;
+
+  const created = await client.add('star', { name: starName }, 'id');
+  return created.id;
 };
 
 (async () => {
-  for(let serie of series) {
+  await client.init();
+  console.log('Client initialized via introspection.\n');
+
+  for (const serie of series) {
     const { stars, name, categories, director, seasons } = serie;
 
-    const starIds = await Promise.all(stars.map(async (star) => {
-      const response = await sendRequest(
-        `{ stars(name: {operator:EQ value:"${star}"}) { id } }`
-      );
-      const stars = response.data.stars;
-      if (stars.length > 0) {
-        return stars[0].id;
-      } else {
-        const response = await sendRequest(
-          `mutation {
-            addstar(input: {
-              name: "${star}"
-            }) {
-              id
-            }
-          }`
-        );
-        return response.data.addstar.id;
-      }
-    }));
+    const starIds = await Promise.all(stars.map(findOrCreateStar));
 
-    const mutation = `mutation {
-      addserie(input: {
-        name: "${name}"
-        categories: ${JSON.stringify(categories)}
-        director: { name: "${director.name}" country: "${director.country}" }
-        stars: {
-          added: [
-            ${starIds.map(starId => `{
-              star: {id:"${starId}"}
-            }`)}
-          ]
-        }
-        seasons: { 
-          added: [
-            ${seasons.map(season => `{
-                number: ${season.number}
-                year: ${season.year}
-                episodes: { 
-                  added: [
-                    ${season.episodes.map(episode => `{
-                      number: ${episode.number}, name: "${episode.name}", date: "${episode.date}" 
-                    }`)}
-                  ]
-                }
-            }`)}
-          ]
-        }
-      }) {
-        id
-        name
-        director { name country }
-        categories
-        seasons {
-          number
-          year
-          state
-          episodes {
-            number name date
-          }
-        }
-      }
-    }`;
-    
-    console.log(mutation);
-    const response = await sendRequest(mutation);
-    console.log(response);
+    const input = {
+      name,
+      categories,
+      director: { name: director.name, country: director.country },
+      stars: {
+        added: starIds.map(id => ({ star: { id } })),
+      },
+      seasons: {
+        added: seasons.map(season => ({
+          number: season.number,
+          year: season.year,
+          episodes: {
+            added: season.episodes.map(ep => ({
+              number: ep.number,
+              name: ep.name,
+              date: ep.date,
+            })),
+          },
+        })),
+      },
+    };
+
+    console.log(`Creating serie: ${name}`);
+    const result = await client.add('serie', input, SERIE_FIELDS);
+    console.log(JSON.stringify(result, null, 2));
+    console.log();
   }
-})();
 
+  console.log('Dataset loaded successfully.');
+})();
