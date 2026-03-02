@@ -4,29 +4,35 @@ const ENDPOINT = process.env.GRAPHQL_ENDPOINT || 'http://localhost:3000/graphql'
 
 const client = new SimfinityClient(ENDPOINT);
 
+const PAGE_SIZE = 500;
+
 const deleteAllOfType = async (typeName) => {
-  let items;
-  try {
-    items = await client.find(typeName).fields('id').exec();
-  } catch (e) {
-    console.error(`Error fetching ${typeName}: ${e.message}`);
-    return;
-  }
+  let totalDeleted = 0;
+  let batch;
 
-  if (items.length === 0) {
-    console.log(`No ${typeName} to delete.`);
-    return;
-  }
-
-  console.log(`Deleting ${items.length} ${typeName}(s)...`);
-  for (const item of items) {
+  do {
     try {
-      await client.delete(typeName, item.id, 'id');
+      batch = await client.find(typeName).fields('id').page(1, PAGE_SIZE).exec();
     } catch (e) {
-      console.error(`  Error deleting ${typeName} ${item.id}: ${e.message}`);
+      console.error(`Error fetching ${typeName}: ${e.message}`);
+      return;
     }
+
+    for (const item of batch) {
+      try {
+        await client.delete(typeName, item.id, 'id');
+        totalDeleted++;
+      } catch (e) {
+        console.error(`  Error deleting ${typeName} ${item.id}: ${e.message}`);
+      }
+    }
+  } while (batch.length > 0);
+
+  if (totalDeleted === 0) {
+    console.log(`No ${typeName} to delete.`);
+  } else {
+    console.log(`Deleted ${totalDeleted} ${typeName}(s).`);
   }
-  console.log('  Done.');
 };
 
 (async () => {
