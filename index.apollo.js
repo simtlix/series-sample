@@ -10,8 +10,8 @@ import * as simfinity from '@simtlix/simfinity-js';
 
 // ---------- Mongo ----------
 let mongooseConfig = [
-  'mongodb://localhost:27017,localhost:27018,localhost:27019/series-sample',
-  { replicaSet: 'rs' }
+  'mongodb://localhost:27017/series-sample',
+  { replicaSet: 'rs0' }
 ];
 if (process.env.MONGO) {
   mongooseConfig = [process.env.MONGO, {}];
